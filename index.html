@@ -408,9 +408,12 @@ function musicStop(){
 const FB_CFG=(typeof KATALUMO_FIREBASE!=="undefined"&&KATALUMO_FIREBASE&&KATALUMO_FIREBASE.apiKey)?KATALUMO_FIREBASE:null;
 const HOME_URL="https://katalumo.com/";
 const EMBEDDED=(()=>{ try{ return window.top!==window.self; }catch(e){ return true; } })();
+const LB_PAGE=20, LB_MAX=100;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function nickGet(){ try{ return localStorage.getItem("katalumo-nick")||""; }catch(e){ return ""; } }
 function nickSet(n){ try{ localStorage.setItem("katalumo-nick",n); }catch(e){} }
+function pubGet(){ try{ return parseInt(localStorage.getItem("katalumo-published")||"-1",10); }catch(e){ return -1; } }
+function pubSet(v){ try{ localStorage.setItem("katalumo-published",String(v)); }catch(e){} }
 function loadScript(src){
   return new Promise((res,rej)=>{ const el=document.createElement("script"); el.src=src; el.onload=res; el.onerror=()=>rej(new Error("load "+src)); document.head.appendChild(el); });
 }
@@ -430,13 +433,79 @@ function getFb(){
   }
   return fbP;
 }
-function mutedP(t){ return '<p style="color:var(--muted)">'+t+'</p>'; }
+function mutedP(t){ return '<p style="color:var(--muted);margin:14px 0">'+t+'</p>'; }
+const LB_CSS=`
+#lb{display:flex;flex-direction:column;gap:6px;margin:10px 0 4px;text-align:left}
+#lb .lbr{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 8px;border-radius:12px;background:var(--panel);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 1px 2px rgba(0,0,0,.06)}
+#lb .lbr.me{outline:2px solid var(--gold);outline-offset:-2px;background:color-mix(in srgb,var(--gold) 14%,var(--panel))}
+#lb .rk{flex:none;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;background:var(--cell);color:var(--muted)}
+#lb .rk.g{background:linear-gradient(145deg,#f6d77a,#c99a2e);color:#4a3306;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+#lb .rk.s{background:linear-gradient(145deg,#e9e9ec,#a9adb5);color:#2f3238;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+#lb .rk.b{background:linear-gradient(145deg,#e2a97a,#9c5a2e);color:#3a1d08;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+#lb .nk{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;font-size:1rem}
+#lb .nk small{font-weight:500;color:var(--muted)}
+#lb .pt{flex:none;font-weight:800;font-size:1.05rem;font-variant-numeric:tabular-nums}
+#lb .pt::before{content:"★ ";font-size:.8em;color:var(--gold)}
+#lb .gap{text-align:center;color:var(--muted);letter-spacing:.3em;line-height:1}
+#lbMore{margin:6px auto 0;display:block;font-size:.85rem;padding:6px 14px}
+#lbFoot{color:var(--muted);font-size:.75rem;margin:10px 0 0}
+#lbFoot a{color:inherit}`;
+function lbRow(rank,nick,score,mine){
+  const cls=rank===1?"g":rank===2?"s":rank===3?"b":"";
+  return '<div class="lbr'+(mine?' me':'')+'"><span class="rk '+cls+'">'+rank+'</span>'
+    +'<span class="nk">'+esc(nick||"?").slice(0,20)+(mine?' <small>'+(PL?"(Ty)":"(you)")+'</small>':'')+'</span>'
+    +'<span class="pt">'+(score|0)+'</span></div>';
+}
+let lbRows=[], lbLast=null, lbDone=false;
+async function lbFetchPage(fb){
+  let q=fb.db.collection("ranking").orderBy("score","desc").limit(LB_PAGE);
+  if(lbLast) q=q.startAfter(lbLast);
+  const snap=await q.get();
+  snap.docs.forEach(d=>lbRows.push({id:d.id,...(d.data()||{})}));
+  lbLast=snap.docs[snap.docs.length-1]||lbLast;
+  if(snap.size<LB_PAGE||lbRows.length>=LB_MAX) lbDone=true;
+}
+async function lbRender(fb){
+  const b=document.getElementById("ovBody");
+  const me=fb.auth.currentUser?fb.auth.currentUser.uid:null;
+  if(!lbRows.length){ b.innerHTML=mutedP(PL?"Jeszcze nikt nie opublikował wyniku — bądź pierwsza!":"No scores published yet — be the first!")+lbFoot(fb); return; }
+  let h='<div id="lb">';
+  let meShown=false;
+  lbRows.forEach((x,i)=>{ const mine=me&&x.id===me; if(mine){ meShown=true; if((x.score|0)>pubGet()) pubSet(x.score|0); } h+=lbRow(i+1,x.nick,x.score,mine); });
+  if(me&&!meShown){
+    try{
+      const mineDoc=await fb.db.collection("ranking").doc(me).get();
+      if(mineDoc.exists){
+        const my=mineDoc.data()||{};
+        if((my.score|0)>pubGet()) pubSet(my.score|0);
+        let rank=null;
+        try{ const c=await fb.db.collection("ranking").where("score",">",my.score|0).count().get(); rank=(c.data().count|0)+1; }catch(e){}
+        h+='<div class="gap">···</div>'+lbRow(rank||"?",my.nick,my.score,true);
+      }
+    }catch(e){}
+  }
+  h+='</div>';
+  if(!lbDone) h+='<button id="lbMore">'+(PL?"Pokaż więcej":"Show more")+'</button>';
+  h+=lbFoot(fb);
+  b.innerHTML=h;
+  const more=document.getElementById("lbMore");
+  if(more) more.addEventListener("click",async()=>{ more.disabled=true; try{ await lbFetchPage(fb); }catch(e){ lbDone=true; } lbRender(fb); });
+  const out=document.getElementById("fbOut");
+  if(out) out.addEventListener("click",async ev=>{ ev.preventDefault(); try{ await fb.auth.signOut(); }catch(e){} pubSet(-1); openScores(); });
+}
+function lbFoot(fb){
+  const u=fb&&fb.auth.currentUser;
+  let h='<p id="lbFoot">';
+  if(u&&!EMBEDDED) h+=esc(u.email||"")+' · <a href="#" id="fbOut">'+(PL?"Wyloguj":"Sign out")+'</a> · ';
+  h+='<a href="privacy.html" target="_blank" rel="noopener">'+(PL?"Prywatność":"Privacy")+'</a></p>';
+  return h;
+}
 async function openScores(){
   closeMenu();
+  if(!document.getElementById("lbStyle")){ const st=document.createElement("style"); st.id="lbStyle"; st.textContent=LB_CSS; document.head.appendChild(st); }
   const oc=document.getElementById("ovClose"); oc.hidden=false; oc.onclick=hideCard;
   document.getElementById("ovTitle").textContent=PL?"Tablica wyników":"Leaderboard";
-  document.getElementById("ovText").textContent=
-    (PL?"Suma punktów ze wszystkich gier — trybu nieskończonego i plansz pojedynczych.":"Total points from all games — endless mode and single boards.");
+  document.getElementById("ovText").textContent="";
   const b=document.getElementById("ovBody");
   b.innerHTML=mutedP(PL?"Wczytuję…":"Loading…");
   const btns=document.getElementById("ovBtns"); btns.innerHTML="";
@@ -447,42 +516,29 @@ async function openScores(){
     b.innerHTML=mutedP(PL?"Tablica wyników online pojawi się wkrótce. Twoje punkty są zapisane na tym urządzeniu.":"The online leaderboard is coming soon. Your points are saved on this device.");
     btns.appendChild(cl); return;
   }
+  const fb=await getFb();
+  if(!fb){ b.innerHTML=mutedP(PL?"Nie udało się połączyć z tablicą. Sprawdź internet i spróbuj ponownie.":"Could not connect to the leaderboard. Check your connection and try again."); btns.appendChild(cl); return; }
+  const signed=!!fb.auth.currentUser;
   if(EMBEDDED){
     const go=document.createElement("button"); go.className="primary";
     go.textContent=PL?"Opublikuj wynik na katalumo.com":"Publish your score at katalumo.com";
     go.addEventListener("click",()=>window.open(HOME_URL,"_blank","noopener"));
     btns.appendChild(go);
-  }else{
+  }else if(!signed){
     const pub=document.createElement("button"); pub.className="primary";
-    pub.textContent=(PL?"Opublikuj mój wynik (★ ":"Publish my score (★ ")+score+")";
+    pub.textContent=PL?"Dołącz do tablicy":"Join the leaderboard";
+    pub.addEventListener("click",publishScore);
+    btns.appendChild(pub);
+  }else if((score|0)>pubGet()){
+    const pub=document.createElement("button"); pub.className="primary";
+    pub.textContent=(PL?"Opublikuj ★ ":"Publish ★ ")+(score|0);
     pub.addEventListener("click",publishScore);
     btns.appendChild(pub);
   }
   btns.appendChild(cl);
-  const fb=await getFb();
-  if(!fb){ b.innerHTML=mutedP(PL?"Nie udało się połączyć z tablicą. Sprawdź internet i spróbuj ponownie.":"Could not connect to the leaderboard. Check your connection and try again."); return; }
-  try{
-    const snap=await fb.db.collection("ranking").orderBy("score","desc").limit(25).get();
-    const me=fb.auth.currentUser?fb.auth.currentUser.uid:null;
-    if(snap.empty){ b.innerHTML=mutedP(PL?"Jeszcze nikt nie opublikował wyniku — bądź pierwsza!":"No scores published yet — be the first!"); return; }
-    let h='<div style="text-align:left;margin:8px 0">';
-    snap.docs.forEach((d,i)=>{
-      const x=d.data()||{}; const mine=(me&&d.id===me);
-      h+='<div style="display:flex;gap:8px;align-items:baseline;padding:6px 4px;border-bottom:1px solid var(--cell)'+(mine?';background:var(--panel);border-radius:6px':'')+'">'
-        +'<b style="width:26px;flex:none">'+(i+1)+'.</b>'
-        +'<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(x.nick||"?").slice(0,20)+(mine?(PL?" (Ty)":" (you)"):"")+'</span>'
-        +'<b>'+((x.score|0))+'</b></div>';
-    });
-    h+='</div>';
-    if(!EMBEDDED&&me){
-      h+='<p style="color:var(--muted);font-size:.8rem;margin:8px 0 0">'
-        +esc(fb.auth.currentUser.email||"")+' · <a href="#" id="fbOut" style="color:inherit">'+(PL?"Wyloguj":"Sign out")+'</a></p>';
-    }
-    h+='<p style="color:var(--muted);font-size:.75rem;margin:6px 0 0"><a href="privacy.html" target="_blank" rel="noopener" style="color:inherit">'+(PL?"Prywatność":"Privacy")+'</a></p>';
-    b.innerHTML=h;
-    const out=document.getElementById("fbOut");
-    if(out) out.addEventListener("click",async ev=>{ ev.preventDefault(); try{ await fb.auth.signOut(); }catch(e){} openScores(); });
-  }catch(e){ b.innerHTML=mutedP(PL?"Nie udało się wczytać tablicy. Spróbuj ponownie.":"Could not load the leaderboard. Try again."); }
+  lbRows=[]; lbLast=null; lbDone=false;
+  try{ await lbFetchPage(fb); await lbRender(fb); }
+  catch(e){ b.innerHTML=mutedP(PL?"Nie udało się wczytać tablicy. Spróbuj ponownie.":"Could not load the leaderboard. Try again."); }
 }
 async function publishScore(){
   const fb=await getFb();
@@ -509,11 +565,12 @@ async function publishScore(){
     return;
   }
   const u=fb.auth.currentUser;
-  b.innerHTML='<div style="margin:12px 0"><input id="nickIn" maxlength="20" placeholder="'+(PL?"Twój nick":"Your nickname")+'"'
-    +' style="font:inherit;padding:9px 12px;border-radius:9px;border:1px solid var(--cell);background:var(--bg);color:var(--ink);width:72%"></div>';
+  b.innerHTML='<p style="color:var(--muted);margin:10px 0 6px">'+(PL?"Pod jakim nickiem?":"Under which nickname?")+'</p>'
+    +'<div style="margin:0 0 12px"><input id="nickIn" maxlength="20" placeholder="'+(PL?"Twój nick":"Your nickname")+'"'
+    +' style="font:inherit;padding:9px 12px;border-radius:9px;border:1px solid var(--cell);background:var(--bg);color:var(--ink);width:72%;text-align:center"></div>';
   const inp=document.getElementById("nickIn"); inp.value=nickGet()||((u.displayName||"").split(" ")[0]||"").slice(0,20);
   btns.innerHTML="";
-  const go=document.createElement("button"); go.className="primary"; go.textContent=(PL?"Publikuj ★ ":"Publish ★ ")+score;
+  const go=document.createElement("button"); go.className="primary"; go.textContent=(PL?"Publikuj ★ ":"Publish ★ ")+(score|0);
   go.addEventListener("click",async()=>{
     const nick=(inp.value||"").trim().slice(0,20);
     if(!nick){ inp.focus(); return; }
@@ -523,7 +580,9 @@ async function publishScore(){
       const ref=fb.db.collection("ranking").doc(u.uid);
       const prev=await ref.get();
       const old=(prev.exists&&prev.data())?(prev.data().score|0):-1;
-      await ref.set({nick,score:Math.max(score|0,old),ts:Date.now()});
+      const best=Math.max(score|0,old);
+      await ref.set({nick,score:best,ts:Date.now()});
+      pubSet(best);
       sfx("seedget",.6);
       openScores();
     }catch(e){
