@@ -59,14 +59,13 @@ header{display:flex; flex-direction:column; align-items:center; gap:14px; paddin
 .strip .tile{width:clamp(38px,7vw,56px); aspect-ratio:1; border-radius:9px; overflow:hidden; box-shadow:var(--shadow); background:var(--panel)}
 .strip .tile svg{display:block; width:100%; height:100%}
 .strip .tile:nth-child(odd){transform:rotate(-2deg)} .strip .tile:nth-child(even){transform:rotate(2deg)}
-.demo{display:flex; flex-direction:column; gap:10px}
+.demo{display:flex; flex-direction:column; gap:10px; scroll-margin-top:8px}
 .demo .bar{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap}
 .demo h2{font-family:var(--display); font-weight:650; font-size:1.25rem; margin:0}
 .demo .bar a{color:var(--muted); font-size:.9rem}
-.frame{width:100%; max-width:100%; height:min(82vh,860px); min-height:560px; border:0; border-radius:16px; background:var(--panel); box-shadow:var(--shadow); display:block}
+.frame{width:100%; max-width:100%; height:calc(100vh - 16px); height:calc(100svh - 16px); min-height:520px; border:0; border-radius:16px; background:var(--panel); box-shadow:var(--shadow); display:block}
 .cta{display:inline-flex; align-items:center; gap:8px; padding:12px 20px; border-radius:12px; background:var(--ink); color:var(--bg); font-weight:600; text-decoration:none; box-shadow:var(--shadow)}
 .cta:focus-visible,a:focus-visible{outline:2.5px solid var(--gold); outline-offset:3px}
-.cta.phone{display:none; align-self:center}
 .how{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px}
 .how section{background:var(--panel); border-radius:14px; padding:18px 18px 16px; min-width:0}
 .how h3{font-family:var(--display); font-weight:650; font-size:1.05rem; margin:0 0 6px; color:var(--title)}
@@ -81,8 +80,6 @@ footer .mail{font-weight:600; font-size:1rem}
 .hush:hover,.hush:focus-visible{color:var(--muted)}
 @media (max-width:700px){
   .how{grid-template-columns:1fr}
-  .frame{height:min(78vh,760px); min-height:520px}
-  .cta.phone{display:inline-flex}
 }
 @media (prefers-reduced-motion: reduce){*{animation:none !important; transition:none !important}}
 </style>
@@ -358,9 +355,7 @@ footer .mail{font-weight:600; font-size:1rem}
   <div class="demo" id="demo">
     <div class="bar">
       <h2>Play the demo</h2>
-      <a href="demo/" target="_blank" rel="noopener">Open in a full window ↗</a>
     </div>
-    <a class="cta phone" href="demo/">Play the demo</a>
     <iframe class="frame" src="demo/" title="Katalumo demo" allow="fullscreen" loading="eager"></iframe>
     <p class="note">The demo is a 3×3 area of sectors with every difficulty on show, from an easy board to the empty 💎 one. No timer, no ads, no sign-in. Your progress stays in this browser.</p>
   </div>
@@ -382,7 +377,7 @@ footer .mail{font-weight:600; font-size:1rem}
 
   <footer>
     <p style="margin:0">Got an idea or found a bug? Write to us.</p>
-    <span class="mail">info@katalumo.com</span>
+    <a class="mail" href="mailto:info@katalumo.com">info@katalumo.com</a>
     <p style="margin:0">© 2026 Katalumo. All rights reserved. · <a href="privacy.html">Privacy</a></p>
     <a class="hush" href="play/" aria-label="·">·</a>
   </footer>

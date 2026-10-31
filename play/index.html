@@ -852,6 +852,7 @@ function tutShow(i){
   }
   tutHi(st.hi);
   tutAim(st,pre);
+  if(st.on!=="zoom") requestAnimationFrame(fitActive);   // keep the board above the instruction box
   if(st.showBad){
     for(let r=0;r<S;r++)for(let c=0;c<S;c++){ const t=board.get(kOf(r,c)); if(t&&!t.pre&&!eq(edges(t),solEdges(r,c))){ const d=cellEl(r,c); if(d) d.classList.add("tutbad"); } }
     for(const [R,C] of cellsOf("0,0")){ const d=cellEl(R,C); if(d) d.classList.add("tutopen"); }
@@ -2805,13 +2806,19 @@ function zoomAt(fx,fy,nz){
   px=fx-(fx-px)*(nz/z); py=fy-(fy-py)*(nz/z);
   z=nz; applyPan();
 }
+// visible part of the map: during the tutorial the instruction box covers the bottom of it
+function viewH(){
+  let h=worldEl.clientHeight;
+  if(TUT&&tutBox){ const r=worldEl.getBoundingClientRect(), b=tutBox.getBoundingClientRect(); const cut=r.bottom-b.top+10; if(cut>0) h=Math.max(140,h-cut); }
+  return h;
+}
 function centerOnSec(sr,sc){
   px=worldEl.clientWidth/2 - z*(sc*STEP+SECW/2);
-  py=worldEl.clientHeight/2 - z*(sr*STEP+SECW/2);
+  py=viewH()/2 - z*(sr*STEP+SECW/2);
   applyPan();
 }
 // zoom at which one sector fills the view with a margin (start zoom and the ⌖ button)
-function fitZoom(){ const w=Math.min(worldEl.clientWidth,worldEl.clientHeight); if(w<80) return 1; return clampZ(Math.min(1.15,(w-28)/SECW)); }
+function fitZoom(){ const w=Math.min(worldEl.clientWidth,viewH()); if(w<80) return 1; return clampZ(Math.min(1.15,(w-28)/SECW)); }
 function fitActive(){ const [sr,sc]=(activeK||"0,0").split(",").map(Number); z=fitZoom(); centerOnSec(sr,sc); updateSnaps(); }
 function zoomStep(f){ const r=worldEl.getBoundingClientRect(); zoomAt(r.width/2,r.height/2,z*f); tutEvt("zoom"); }
 document.getElementById("zIn").addEventListener("click",()=>{ sfx("uiclick",.4); zoomStep(1.25); });
