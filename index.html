@@ -273,14 +273,15 @@ const NCOL=5, CELL=44, GAP=2, HAND_SIZE=12;
 // ====== ECONOMY — one place to tune everything (Tokens) ======
 // Per-tier values are for a 10x10 sector; they scale with sector area (WORKF) like before.
 const ECON={
-  start:30,                                   // wallet of a brand-new player
+  start:15,                                   // wallet of a brand-new player (existing wallets are never cut)
   tile:5,                                     // "Add a tile" (correct tile into its place)
   solvePerCell:3, solveMin:30,                // "Solve sector" = empty cells x 3, at least 30
   reward:  {60:5, 50:8, 40:12, 30:20, 20:30, 0:50},   // Tokens for a finished sector
   attempt: {60:10,50:15,40:20, 30:30, 20:40, 0:60},   // one extra attempt on a locked sector / board
   attempts:{60:3, 50:5, 40:6,  30:9,  20:13, 0:23},   // free attempts per sector (~35-40% of sectors lock)
-  regenMs:14400000, regenAmt:2, regenCap:30,  // +2 Tokens every 4 h while below 30
-  ad:20, adPerDay:5,                          // rewarded ad (mobile builds only; not wired here)
+  regenMs:14400000, regenAmt:2, regenCap:15,  // +2 Tokens every 4 h while below 15 (cap applies to regrowth only)
+  adAttemptsPerDay:5,                         // rewarded ad = one extra attempt in one locked sector; no Tokens
+  missionTokenMult:0.75,                      // Tokens from missions = round(base × 0.75); points stay at base × 2
   // Missions (endless map only): three ladders that never end. Each step pays once: [Tokens, points].
   missions:{
     sectors:{steps:[1,3,5,10,25], every:25,                 // finish N sectors on this map: 1,3,5,10,25,50,75,...
@@ -1142,15 +1143,53 @@ function offerAttempt(k){
   const who=MODE==="inf"?(PL?"Sektor zablokowany":"Sector locked"):(PL?"Plansza zablokowana":"Board locked");
   const extra=MODE==="inf"?(PL?" Za darmo: otocz go (i sąsiednie zablokowane) ukończonymi sektorami.":" For free: surround it (together with any locked neighbours) with finished sectors."):"";
   const ac=attCostForTier(sectors.get(k).tier);
-  if(coins>=ac){
-    showCard(PL?"Dodatkowe podejście":"Extra attempt",
-      (PL?`${who}. Jedno podejście: ${ac} ${CS()} (masz ${coins}).`:`${who}. One more attempt: ${ac} ${CS()} (you have ${coins}).`)+extra,
-      [[PL?`Użyj ${ac} ${CS()}`:`Use ${ac} ${CS()}`,"primary",()=>{hideCard(); coins-=ac; sectors.get(k).att++; sectors.get(k).help=1; resumeSector(k);}],
-       [PL?"Nie teraz":"Not now","",()=>hideCard()]]);
-  } else {
-    showCard(PL?"Dodatkowe podejście":"Extra attempt",
-      (sfx("nocoins",.8), (PL?`${who}. Jedno podejście kosztuje ${ac} ${CS()}, masz ${coins}. Tokeny dostajesz za sektory, misje i postęp; kilka odnawia się samo (+${ECON.regenAmt} co 4 h).`:`${who}. One more attempt costs ${ac} ${CS()}, you have ${coins}. You earn Tokens for sectors, missions and map progress; a few regrow on their own (+${ECON.regenAmt} every 4 h).`)+extra),
-      [["OK","primary",()=>hideCard()]]);
+  const canAd=adsReady()&&adLeft()>0, btns=[];
+  if(canAd) btns.push([PL?"Obejrzyj reklamę — dodatkowe podejście":"Watch an ad — one more attempt","primary",()=>{ hideCard(); watchAdForAttempt(k); }]);
+  if(coins>=ac) btns.push([PL?`Użyj ${ac} ${CS()} — dodatkowe podejście`:`Use ${ac} ${CS()} — one more attempt`,canAd?"":"primary",()=>{hideCard(); coins-=ac; sectors.get(k).att++; sectors.get(k).help=1; resumeSector(k);}]);
+  btns.push([PL?"Wróć do mapy":"Back to the map",btns.length?"":"primary",()=>hideCard()]);
+  if(coins<ac&&!canAd) sfx("nocoins",.8);
+  const adNote=adsReady()?(PL?` Reklamy: zostało ${adLeft()} z ${ECON.adAttemptsPerDay} dziś.`:` Ads left today: ${adLeft()} of ${ECON.adAttemptsPerDay}.`):"";
+  showCard(PL?"Dodatkowe podejście":"Extra attempt",
+    (coins>=ac
+      ? (PL?`${who}. Jedno podejście: ${ac} ${CS()} (masz ${coins}).`:`${who}. One more attempt: ${ac} ${CS()} (you have ${coins}).`)
+      : (PL?`${who}. Jedno podejście kosztuje ${ac} ${CS()}, masz ${coins}.`:`${who}. One more attempt costs ${ac} ${CS()}; you have ${coins}.`))
+    +adNote+extra, btns);
+}
+
+
+// ====== Rewarded ad: one extra attempt in one locked sector ======
+// The store builds plug an ad SDK in through window.KatalumoAds:
+//   KatalumoAds.isAvailable() -> boolean
+//   KatalumoAds.showRewarded() -> Promise<boolean>   (true only when the SDK confirms the reward)
+// Without it the ad option is hidden. Nothing here ever starts an ad by itself.
+const ADKEY="katalumo-ads";
+function adDay(){ const d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+function adState(){ try{ const o=JSON.parse(localStorage.getItem(ADKEY)||"{}"); return o.day===adDay()?o:{day:adDay(),n:0}; }catch(e){ return {day:adDay(),n:0}; } }
+function adLeft(){ return Math.max(0,ECON.adAttemptsPerDay-(adState().n|0)); }
+function adsReady(){ try{ return !!(window.KatalumoAds&&KatalumoAds.isAvailable&&KatalumoAds.isAvailable()); }catch(e){ return false; } }
+let adBusy=false;
+// The single place where a confirmed ad reward is granted.
+function grantAdAttempt(k){
+  const s=sectors.get(k); if(!s||!s.opened||s.state==="done") return false;
+  const st=adState(); if((st.n|0)>=ECON.adAttemptsPerDay) return false;
+  st.n=(st.n|0)+1; try{ localStorage.setItem(ADKEY,JSON.stringify(st)); }catch(e){}
+  s.att++; saveState(); return true;
+}
+async function watchAdForAttempt(k){
+  if(adBusy||!adsReady()||adLeft()<=0) return;
+  adBusy=true;
+  const wasMusic=musicOn;                     // restore the player's own sound choice afterwards
+  if(wasMusic) musicStop();
+  let ok=false;
+  try{ ok=(await KatalumoAds.showRewarded())===true; }catch(e){ ok=false; }
+  if(wasMusic&&musicOn){ if(mInitDone) musicStart(); else musicInit(); }
+  adBusy=false;
+  if(ok&&grantAdAttempt(k)){
+    sfx("unlock",.85);
+    showToasts([{kind:"mission",html:"<b>+1 attempt</b> in this sector."}]);
+    resumeSector(k);
+  } else if(!ok){
+    showToasts([{kind:"mission",html:"The ad didn’t finish — no attempt used."}]);
   }
 }
 
@@ -1277,7 +1316,8 @@ function qDef(cat,i){
 }
 function qReward(m){
   const M=ECON.missions[m.cat];
-  return m.cat==="lines" ? M.reward(m.kind,m.n) : M.reward(m.n);
+  const [tok,pts]= m.cat==="lines" ? M.reward(m.kind,m.n) : M.reward(m.n);
+  return [Math.round(tok*ECON.missionTokenMult), pts];
 }
 function qLabel(m){
   if(m.cat==="sectors") return m.n===1?"Finish a sector":`Finish ${m.n} sectors`;
@@ -1353,7 +1393,7 @@ function renderQuests(){
     qe.hidden=!tutQuest; if(!tutQuest) return;
     qe.classList.remove("closed");
     const d=sectors.get("0,0"), doneB=d&&d.state==="done";
-    document.getElementById("qList").innerHTML=`<div class="qi${doneB?" done":""}"><span class="qt">Finish this board</span><span class="qp">${doneB?1:0}/1</span><span class="qr">+10 ${CS()} +20 ★</span></div>`;
+    document.getElementById("qList").innerHTML=`<div class="qi${doneB?" done":""}"><span class="qt">Finish this board</span><span class="qp">${doneB?1:0}/1</span><span class="qr">+${Math.round(10*ECON.missionTokenMult)} ${CS()} +20 ★</span></div>`;
     return;
   }
   if(MODE!=="inf"||!Q){ qe.hidden=true; return; }
@@ -1390,13 +1430,13 @@ function showHelp(){
 <p><b>Deck</b> in the top bar counts the tiles still to be placed in the current sector (deck plus hand). <b>♻ Hand</b> returns your whole hand to the bottom of the decks and deals again — it costs nothing and does not use an attempt.</p>
 <h3>Attempts and locking</h3>
 <p><b>End attempt</b> clears every misplaced tile; correctly placed tiles stay for good. It uses one attempt (⟲). Attempts per sector grow with difficulty and size: ${A[60]}/${A[50]}/${A[40]}/${A[30]}/${A[20]}/${A[0]} for 60/50/40/30/20/0% prefill on a 10×10 sector. When the last attempt ends, the sector <b>locks</b>; its correct tiles remain.</p>
-<p>Two ways to unlock: <b>buy one attempt</b> (${C[60]}–${C[0]} ${T} by difficulty, more for bigger sectors), or <b>for free</b>: surround the locked sector with finished sectors on all eight sides, corners included. Locked sectors that touch each other count as one group — the whole group has to be surrounded, and then every sector in it comes back with full attempts.</p>
+<p>Ways to unlock: <b>buy one attempt</b> (${C[60]}–${C[0]} ${T} by difficulty, more for bigger sectors)${adsReady()?`, <b>watch an optional ad</b> for one attempt (up to ${ECON.adAttemptsPerDay} a day — ads never start on their own)`:""}, or <b>for free</b>: surround the locked sector with finished sectors on all eight sides, corners included. Locked sectors that touch each other count as one group — the whole group has to be surrounded, and then every sector in it comes back with full attempts.</p>
 <h3>Points, 💎 and difficulty</h3>
 <p>★ points are awarded per finished sector by difficulty (shown on the map), scaled by sector size. A <b>💎</b> sector starts empty (0% prefill) and pays the most. Cells bought with Tokens do not score: you get the share of points matching what you placed yourself. Points from both modes add up to one total, which is what the leaderboard shows.</p>
 <h3>The map</h3>
 <p>In endless mode tap a fogged sector next to an opened one to open it; its symbols show difficulty. Drag to move the map, pinch or scroll to zoom, or use + − ⌖ (⌖ centres on your current sector).</p>
 <h3>Tokens ${T}</h3>
-<p><b>Earn:</b> finishing a sector (${R[60]}–${R[0]} ${T} by difficulty on 10×10, more for bigger sectors), missions. A few also regrow on their own: +${ECON.regenAmt} every 4 hours, up to ${ECON.regenCap}. Tokens are shared by both modes.</p>
+<p><b>Earn:</b> finishing a sector (${R[60]}–${R[0]} ${T} by difficulty on 10×10, more for bigger sectors) and missions. A few also regrow on their own: +${ECON.regenAmt} every 4 hours while you have fewer than ${ECON.regenCap}. Tokens are shared by both modes.</p>
 <p><b>Spend:</b> <b>Add a tile</b> — ${ECON.tile} ${T} for one correct tile in its place · <b>one extra attempt</b> on a locked sector or board · <b>Solve sector</b> — ${ECON.solvePerCell} ${T} per empty cell (bought cells do not score).</p>
 <h3>Missions</h3>
 <p>The endless map has three mission ladders that never end: <b>Sectors</b> (finish 1, 3, 5, 10, 25 sectors, then every 25 more), <b>Lines</b> (finished sectors in a row or column — 3, 5, 10, 15, 20, then every 10 — and on a diagonal from 5), and <b>Squares</b> (a 2×2 block of finished sectors, then 5×5, 10×10 and every 5 more). Each step pays Tokens and ★ once, the moment you reach it. The two missions closest to completion show under the map; ☰ → Missions shows the full table. Swapping the hand or ending an attempt never resets them; a new map starts its own ladders.</p>
@@ -2584,7 +2624,7 @@ function showMissions(){
   requestAnimationFrame(()=>{ const w=document.getElementById("mtWrap"), r=w&&w.querySelector("tr.mfocus");
     if(w&&r){ w.scrollTop=Math.max(0,r.offsetTop-w.clientHeight/3); } });
 }
-const VERSION="0.19.3";
+const VERSION="0.20.0";
 document.getElementById("msContact").addEventListener("click",()=>{
   closeMenu();
   showCard(PL?"Kontakt":"Contact",

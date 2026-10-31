@@ -7,4 +7,4 @@ Live at https://katalumo.com (deployed by Vercel from this repository, no build 
 Files: `index.html` (the whole game), `privacy.html`, icons, `manifest.webmanifest`,
 plus `firebase-config.js` and `og.png`, which stay in the repository and are not replaced on update.
 
-Version 0.19.3 · info@katalumo.com
+Version 0.20.0 · info@katalumo.com
