@@ -1,10 +1,16 @@
 <!DOCTYPE html>
+<!--
+  Katalumo
+  © 2026 Katalumo. All rights reserved.
+  This game, its code, graphics, sounds and music are protected by copyright.
+  No copying, redistribution or reuse without written permission. Contact: info@katalumo.com
+-->
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Katalumo</title>
-<meta name="description" content="Katalumo — relaksująca gra logiczna: układaj mozaikę z klocków na nieskończonej mapie ogrodu. Katalumo — a relaxing mosaic puzzle on an endless garden map.">
+<meta name="description" content="Katalumo — a relaxing edge-matching puzzle on an endless map.">
 <meta name="theme-color" content="#f4efe6" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#20242a" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,7 +22,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Katalumo">
-<meta property="og:description" content="A relaxing mosaic puzzle on an endless garden map. Relaksująca gra logiczna na nieskończonej mapie ogrodu.">
+<meta property="og:description" content="A relaxing edge-matching puzzle on an endless map.">
 <meta property="og:url" content="https://katalumo.com/">
 <meta property="og:image" content="https://katalumo.com/og.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -53,6 +59,51 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 html,body{height:100%}
 *{box-sizing:border-box}
 [hidden]{display:none !important}
+.tok{width:1.05em;height:1.05em;vertical-align:-.17em;display:inline-block}
+.help{text-align:left; font-size:.9rem}
+#mtWrap{max-height:56vh; overflow:auto; border-radius:10px; border:1px solid var(--cell-line)}
+table.mt{width:100%; border-collapse:collapse; font-size:.86rem; margin:0}
+table.mt thead th{position:sticky; top:0; background:var(--panel); z-index:1}
+table.mt tr.c-sectors td{background:color-mix(in srgb,#c99a2e 16%,var(--panel))}
+table.mt tr.c-lines td{background:color-mix(in srgb,#3f6fae 14%,var(--panel))}
+table.mt tr.c-squares td{background:color-mix(in srgb,#b0566f 14%,var(--panel))}
+table.mt tr.mfirst td{border-top:2px solid var(--panel)}
+table.mt tr.mfocus td{box-shadow:inset 0 0 0 9999px rgba(201,154,46,.18); font-weight:700}
+table.mt tr.mfocus td:first-child{border-left:4px solid var(--gold)}
+table.mt th{text-align:left; color:var(--muted); font-weight:600; font-size:.75rem; padding:4px 6px; border-bottom:1px solid var(--cell-line)}
+table.mt td{padding:5px 6px; border-bottom:1px solid var(--cell-line); white-space:nowrap}
+table.mt td:first-child{white-space:normal}
+table.mt tr.mcat td{font-weight:700; color:var(--title); padding-top:10px; border-bottom:0}
+table.mt tr.mnow td{font-weight:600}
+table.mt tr.mnext td{color:var(--muted)}
+table.mt tr.mdone td{color:var(--muted); text-decoration:line-through; text-decoration-thickness:1px}
+table.mt td:nth-child(2),table.mt td:nth-child(3){text-align:right}
+.help h3{font-size:.98rem; margin:14px 0 4px; color:var(--title)}
+.help h3:first-child{margin-top:4px}
+.help p{margin:4px 0 8px; color:var(--ink)}
+#quests{display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap; padding:0 2px; font-size:.76rem; line-height:1.2}
+#qHead{display:flex; align-items:center; gap:5px; color:var(--muted); white-space:nowrap}
+#qHead #qTitle{font-weight:700; color:var(--ink)}
+#qHead #qProg{display:none}
+#qToggle{padding:0 6px; font-size:.85rem; background:transparent; color:var(--muted)}
+#qList{display:flex; gap:5px; flex-wrap:wrap; align-items:center; justify-content:center}
+#qList .qmenu{padding:3px 10px; border-radius:999px; font-weight:700; font-size:inherit; background:var(--panel); box-shadow:var(--shadow)}
+#qList .qnext{color:var(--muted); margin-left:4px}
+#quests.closed #qList{display:none}
+.qi{display:inline-flex; align-items:center; gap:6px; padding:3px 8px; border-radius:999px; background:var(--panel); box-shadow:var(--shadow); white-space:nowrap}
+.qi .qp{color:var(--muted); font-variant-numeric:tabular-nums}
+.qi .qr{font-weight:600}
+.qi.done{background:color-mix(in srgb,var(--gold) 25%,var(--panel))}
+.qi .qbar{height:3px; border-radius:2px; background:var(--cell-line); width:28px; overflow:hidden; flex:none}
+.qi .qbar i{display:block; height:100%; background:var(--gold)}
+#zoomBar{position:absolute; right:10px; bottom:10px; display:flex; flex-direction:column; gap:5px; z-index:15}
+#zoomBar button{width:36px; height:36px; padding:0; font-size:1.25rem; line-height:1; border-radius:10px; background:var(--panel); box-shadow:var(--shadow); opacity:.92}
+#toasts{position:absolute; left:50%; top:10px; transform:translateX(-50%); display:flex; flex-direction:column; gap:6px; z-index:20; pointer-events:none; width:min(92%,420px)}
+.toast{background:var(--panel); color:var(--ink); border:2px solid var(--gold); border-radius:12px; padding:8px 12px; box-shadow:var(--shadow); font-size:.9rem; text-align:center; animation:toastin .35s cubic-bezier(.34,1.4,.5,1) both}
+.toast.out{animation:toastout .4s ease forwards}
+.toast b{color:var(--ink)}
+@keyframes toastin{from{opacity:0; transform:translateY(-14px) scale(.96)}to{opacity:1; transform:none}}
+@keyframes toastout{to{opacity:0; transform:translateY(-10px)}}
 body{
   margin:0; background:var(--bg); color:var(--ink);
   font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -151,6 +202,12 @@ button:focus-visible{outline:2.5px solid var(--gold); outline-offset:2px}
 #tutBox .trow{display:flex; gap:8px; justify-content:flex-end; margin-top:9px}
 #tutBox button{font:inherit; border:0; border-radius:9px; padding:7px 13px; cursor:pointer; background:var(--cell); color:var(--ink)}
 #tutBox button.primary{background:var(--gold); color:#fff; font-weight:600}
+body.choosing #world,body.choosing #tray,body.choosing #quests,body.choosing .stack-info{visibility:hidden}
+body.choosing #overlay{background:transparent}
+.tutfocus .cell:not(.tuthi){opacity:.55}
+.cell.tutbad{outline:3px solid #c0392b; outline-offset:-2px; border-radius:4px; animation:tutpulse 1.2s infinite}
+.cell.tutopen{outline:3px dashed var(--gold); outline-offset:-3px}
+.tutfocus .slot:not(.sel){opacity:.5}
 .tuthi{outline:3px solid var(--gold); outline-offset:2px; border-radius:10px; animation:tutpulse 1.2s infinite}
 @keyframes tutpulse{50%{outline-color:transparent}}
 #menuBtn{padding:3px 11px; font-size:1.05rem; margin-left:6px; vertical-align:middle}
@@ -174,28 +231,32 @@ button:focus-visible{outline:2.5px solid var(--gold); outline-offset:2px}
 <body>
 <header>
   <h1><span class="wm" role="img" aria-label="Katalumo"></span><span class="sr">Katalumo</span></h1>
-  <div class="stack-info">★ <b id="scoreN">0</b> · 🌱 <b id="jokN">3</b> · <span id="deckLbl">talia</span> <b id="deckN">–</b> · ⟲ <b id="attN">–</b><button id="menuBtn" aria-label="Menu">☰</button></div>
+  <div class="stack-info">★ <b id="scoreN">0</b> · <span id="tokIco"></span> <b id="jokN">3</b> · <span id="deckLbl">talia</span> <b id="deckN">–</b> · ⟲ <b id="attN">–</b><button id="menuBtn" aria-label="Menu">☰</button></div>
 </header>
 <div id="menu" hidden>
-  <button id="msScores">🏆 Wyniki</button>
-  <button id="msSnd">🔊 Dźwięk: wł.</button>
-  <button id="msMus">🎵 Muzyka: wł.</button>
-  <button id="msTheme">◐ Tło</button>
-  <button id="msWorld" hidden>🎨 Temat</button>
-  <button id="msTut">🎓 Jak grać</button>
-  <button id="msContact">✉ Kontakt</button>
-  <button id="msLang">🌐 English</button>
-  <button id="msNew">▦ Nowa gra</button>
+  <button id="msNew">▦ New game</button>
+  <button id="msCont" hidden>▶ Continue / change mode</button>
+  <button id="msSnd">🔊 Sound: on</button>
+  <button id="msMus">🎵 Music: on</button>
+  <button id="msScores">🏆 Leaderboard</button>
+  <button id="msTheme">◐ Background</button>
+  <button id="msWorld" hidden>🎨 Theme</button>
+  <button id="msMissions">🎯 Missions</button>
+  <button id="msHelp">❔ Help</button>
+  <button id="msTut">🎓 Play the tutorial</button>
+  <button id="msContact">✉ Contact</button>
+  <button id="msLang" hidden>🌐 English</button>
 </div>
 
-<div id="world" aria-label="Mapa"><div id="pan"></div></div>
+<div id="world" aria-label="Mapa"><div id="pan"></div><div id="toasts"></div><div id="zoomBar"><button id="zIn" aria-label="Zoom in">+</button><button id="zOut" aria-label="Zoom out">−</button><button id="zFit" aria-label="Centre on current sector">⌖</button></div></div>
+<div id="quests" hidden><div id="qHead" hidden><span id="qTitle">Missions</span><span id="qProg"></span><button id="qToggle" aria-label="Collapse">▾</button></div><div id="qList"></div></div>
 
 <div id="tray">
   <div id="hand"></div>
   <div class="tray-actions">
     <button id="rotBtn">⟳</button>
     <button id="swapBtn">♻ Ręka</button>
-    <button id="jokerBtn">🌱 Dosadź klocek</button>
+    <button id="jokerBtn">Add a tile</button>
     <button id="endBtn">Zakończ podejście</button>
     <button id="solveBtn" hidden>✨ Rozwiąż sektor</button>
   </div>
@@ -205,15 +266,33 @@ button:focus-visible{outline:2.5px solid var(--gold); outline-offset:2px}
 
 <script>
 "use strict";
-let LANG="pl";
-try{ LANG=localStorage.getItem("katalumo-lang") || (((navigator.language||"")+"").toLowerCase().startsWith("pl")?"pl":"en"); }catch(e){}
-if(LANG!=="pl"&&LANG!=="en") LANG="pl";
+let LANG="en";   // English-only build; the PL strings stay in the code for a later localisation pass
+try{ if(localStorage.getItem("katalumo-lang-dev")==="pl") LANG="pl"; }catch(e){}
 const PL=(LANG==="pl");
 const NCOL=5, CELL=44, GAP=2, HAND_SIZE=12;
-const COST=1;
-const REW_T={60:1,50:2,40:3,30:4,20:6,0:8};   // nasiona za sektor wg trudnosci
-const SOLVE_RATE=0.8;                          // "Rozwiaz sektor" = pozostale pola x 0,8
-const REGEN_MS=14400000, REGEN_CAP=10;         // 1 nasiono / 4 h, limit 10
+// ====== ECONOMY — one place to tune everything (Tokens) ======
+// Per-tier values are for a 10x10 sector; they scale with sector area (WORKF) like before.
+const ECON={
+  start:30,                                   // wallet of a brand-new player
+  tile:5,                                     // "Add a tile" (correct tile into its place)
+  solvePerCell:3, solveMin:30,                // "Solve sector" = empty cells x 3, at least 30
+  reward:  {60:5, 50:8, 40:12, 30:20, 20:30, 0:50},   // Tokens for a finished sector
+  attempt: {60:10,50:15,40:20, 30:30, 20:40, 0:60},   // one extra attempt on a locked sector / board
+  attempts:{60:3, 50:5, 40:6,  30:9,  20:13, 0:23},   // free attempts per sector (~35-40% of sectors lock)
+  regenMs:14400000, regenAmt:2, regenCap:30,  // +2 Tokens every 4 h while below 30
+  ad:20, adPerDay:5,                          // rewarded ad (mobile builds only; not wired here)
+  // Missions (endless map only): three ladders that never end. Each step pays once: [Tokens, points].
+  missions:{
+    sectors:{steps:[1,3,5,10,25], every:25,                 // finish N sectors on this map: 1,3,5,10,25,50,75,...
+             reward:n=> n<=1?[10,20] : n<=3?[15,30] : n<=5?[20,40] : n<=10?[30,60] : [50,100]},
+    lines:  {row:[3,5,10,15,20], rowEvery:10,               // row or column: 3,5,10,15,20,30,40,...
+             diag:[5,10,15,20], diagEvery:10,               // diagonal:      5,10,15,20,30,...
+             reward:(kind,n)=>{ const t=n*(kind==="diag"?3:2); return [t,2*t]; }},
+    squares:{steps:[2,5,10], every:5,                       // k×k block: 2,5,10,15,20,...
+             reward:k=>{ const t=k*10; return [t,2*t]; }}
+  }
+};
+const COST=ECON.tile;
 const WEIGHTS=[.5,.3,.2];
 const Z_SNAP=0.55;
 let MODE="inf";           // "inf" | "single"
@@ -243,7 +322,7 @@ const ROMAN=["I","II","III","IV","V","VI","VII","VIII"];
 let board=new Map();
 let sectors=new Map();
 let hand=[], selIdx=0;
-let coins=3, activeK=null, lastRegen=Date.now();
+let coins=ECON.start, activeK=null, lastRegen=Date.now();
 let ownedCards=new Set(), wilds=0, colClaimed=new Set(), albumClaimed=false;
 let score=0;
 let TUT=false, tutStep=-1;
@@ -596,36 +675,31 @@ async function publishScore(){
   btns.appendChild(go); btns.appendChild(back);
 }
 
-// ====== Samouczek (plansza 5×5) ======
+// ====== Tutorial (5×5 board, English) ======
 const TSTEPS=[
- {pl:"<b>Witaj w Katalumo!</b> Układasz mozaikę z klocków: klocek pasuje, gdy kolory jego krawędzi zgadzają się z sąsiadami.",
-  en:"<b>Welcome to Katalumo!</b> You build a mosaic from tiles: a tile fits when its edge colors match its neighbours.", on:null, hi:null},
- {pl:"Na dole jest Twoja <b>ręka</b> — wybrałam dla Ciebie klocek (złota obwódka). Pasuje bez obracania: stuknij <b>podświetlone pole</b>, aby go położyć.",
-  en:"Your <b>hand</b> is at the bottom — I picked a tile for you (gold outline). It fits without rotating: tap the <b>highlighted cell</b> to place it.", on:"place", hi:"hand", target:"norot"},
- {pl:"Ten klocek pasuje w podświetlone pole dopiero <b>po obróceniu</b>: stukaj wybrany klocek (albo ⟳), aż krawędzie będą się zgadzać, i połóż go.",
-  en:"This tile fits the highlighted cell only <b>after rotating</b>: tap the selected tile (or ⟳) until the edges match, then place it.", on:"place", hi:"rotBtn", target:"rot"},
- {pl:"♻ wymienia wszystkie klocki w ręce — wracają do talii, a Ty dostajesz nowe rozdanie.",
-  en:"♻ swaps all tiles in your hand — they return to the deck and you get a new deal.", on:"swap", both:1, hi:"swapBtn"},
- {pl:"{C} to <b>{CN}</b>. „{P}” za 1 {C} wstawia poprawny klocek na właściwe miejsce. {C} odnawia się co 4 godziny i dostajesz za każdy ukończony sektor — im trudniejszy, tym więcej.",
-  en:"{C} is <b>{CN}</b>. “{P}” costs 1 {C} and puts a correct tile in its right place. {C} regrows every 4 hours and you earn it for finished sectors — the harder, the more.", on:"seed", both:1, hi:"jokerBtn"},
- {pl:"⟲ to <b>podejścia</b>. Gdy utkniesz, „Zakończ podejście”: błędne klocki znikają, poprawne zostają — i ubywa jedno podejście.",
-  en:"⟲ are <b>attempts</b>. When stuck, “End attempt”: wrong tiles vanish, correct ones stay — and you use up one attempt.", on:"endatt", both:1, hi:"endBtn"},
- {pl:"Grasz w jednym z dwóch trybów. <b>∞ Tryb nieskończony</b> to mapa bez końca: otwierasz sektor obok już otwartego. Kwiatki na mapie pokazują trudność — im więcej, tym więcej punktów i {C}.",
-  en:"There are two modes. <b>∞ Endless mode</b> is a map without end: you open a sector next to one already open. Flowers on the map show difficulty — more flowers, more points and {C}.", on:null, hi:null},
- {pl:"Gdy w sektorze skończą się podejścia, blokuje się — ale reszta mapy gra dalej. Otoczenie go ukończonymi sektorami odblokuje go za darmo.",
-  en:"When a sector runs out of attempts it locks — but the rest of the map plays on. Encircling it with finished sectors frees it for nothing.", on:null, hi:null},
- {pl:"<b>▦ Pojedyncza plansza</b> to jedna plansza, nawet 30×30, bez mapy. Nasiona i punkty są wspólne dla obu trybów, a wyniki sumują się na jednej tablicy. Tryb zmienisz w menu ☰.",
-  en:"<b>▦ Single board</b> is one board, up to 30×30, with no map. Seeds and points are shared by both modes and scores add up on one leaderboard. Switch modes in the ☰ menu.", on:null, hi:"menuBtn"},
- {pl:"Teraz <b>dokończ planszę</b>! Złota ramka wokół sektora znaczy, że cały brzeg jest ułożony poprawnie.",
-  en:"Now <b>finish the board</b>! A golden frame around the sector means its whole border is correct.", on:"done", hi:null}
+ {en:"<b>Welcome to Katalumo!</b> Match the coloured edges to complete the board. There’s no timer — take your time.", on:null, hi:null},
+ {en:"The tiles at the bottom are your <b>hand</b>. We’ve selected one for you. <b>Tap the highlighted space</b> to place it.", on:"place", hi:"hand", target:"norot", focus:1},
+ {en:"This tile needs turning. <b>Tap ⟳ or the tile itself</b> until its colours match the neighbours, then tap the highlighted space.", on:"place", hi:"rotBtn", target:"rot", focus:1},
+ {en:"Check <b>every edge that touches another tile</b>. Turn the selected tile if needed, then place it in the highlighted space.", on:"place", hi:null, target:"multi", focus:1},
+ {en:"<b>“{P}”</b> places one correct tile for you. It normally costs <b>{TILE} {C}</b> Tokens. <b>Try it now — this one is free.</b>", on:"seed", hi:"jokerBtn"},
+ {en:"<b>Try + or −</b> to change the zoom. You can also pinch or scroll. Drag the map to move around; ⌖ brings you back to your current sector.", on:"zoom", hi:"zoomBar"},
+ {en:"Each small board on the map is a <b>sector</b>. Completing one earns <b>★ points and {C} Tokens</b>. More symbols mean a harder puzzle; 💎 marks an empty starting board.", on:null, hi:null},
+ {en:"Its colours match its <b>{N}</b> neighbours — but {REST}. Place it in the highlighted space.", on:"place", hi:null, target:"fake", focus:1},
+ {en:"Now <b>fill every space you can</b>. Your hand only shows tiles that fit somewhere right now.", on:"handempty", hi:"hand"},
+ {en:"Your <b>hand is empty</b>, but {E} still open. The right tiles for them don’t fit, because a tile next to them is in the wrong spot (marked red). Matching the neighbours isn’t enough — every tile has <b>one true place</b>. Tap <b>End attempt</b>.", on:"endatt", hi:"endBtn", showBad:1},
+ {en:"The wrong tile went back to the deck; <b>correct tiles stayed</b>, and the last tiles fit again. Your first mission: <b>finish this board</b>.", on:"done", hi:"quests", quest:1}
 ];
-let tutBox=null, tutHiEl=null, tutCellEl=null;
+let tutBox=null, tutHiEl=null, tutCellEl=null, tutQuest=false, tutFreeUsed=false;
 function tutHi(id){
   if(tutHiEl){ tutHiEl.classList.remove("tuthi"); tutHiEl=null; }
   if(tutCellEl){ tutCellEl.classList.remove("tuthi"); tutCellEl=null; }
   if(id){ const el=document.getElementById(id); if(el){ el.classList.add("tuthi"); tutHiEl=el; } }
 }
-function tutTarget(needRot){
+function placedNb(R,C){
+  let n=0; for(const [dr,dc] of [[-1,0],[1,0],[0,-1],[0,1]]){ const q=board.get(kOf(R+dr,C+dc)); if(q&&secKey(R+dr,C+dc)==="0,0") n++; } return n;
+}
+function tutTarget(kind){
+  let best=null;
   for(let hi=0;hi<hand.length;hi++){
     const t=hand[hi], save=t.rot;
     for(const [R,C] of cellsOf("0,0")){
@@ -633,15 +707,55 @@ function tutTarget(needRot){
       let fitAny=false;
       for(let r=0;r<4;r++){ t.rot=(save+r)%4; if(canPlace(t,R,C)){fitAny=true;break;} }
       t.rot=save;
-      if(!needRot && fit0) return {hi,R,C};
-      if(needRot && !fit0 && fitAny) return {hi,R,C};
+      if(kind==="norot" && fit0) return {hi,R,C};
+      if(kind==="rot" && !fit0 && fitAny) return {hi,R,C};
+      if(kind==="multi" && fitAny && placedNb(R,C)>=2) return {hi,R,C};
     }
+  }
+  return best;
+}
+// a tile that matches its placed neighbours in (R,C) but is not the solution tile there
+let tutTrap=null;
+// tutorial: the free "Add a tile" fills the cell that best sets up the 3-neighbour lesson
+function trapCands(){ return cellsOf("0,0").filter(([R,C])=>{
+  let emptyIn=0; for(const [dr,dc] of [[-1,0],[1,0],[0,-1],[0,1]]){ if(secKey(R+dr,C+dc)==="0,0"&&!board.has(kOf(R+dr,C+dc))) emptyIn++; }
+  return emptyIn===1&&placedNb(R,C)>=3; }); }
+function tutBestAddCell(){
+  if(trapCands().length) return null;
+  let best=null, bn=0;
+  for(const [R,C] of cellsOf("0,0")){
+    const k=kOf(R,C); board.set(k,{e:solEdges(R,C),rot:0,pre:1});
+    const n=trapCands().length; board.delete(k);
+    if(n>bn){ bn=n; best=[R,C]; }
+  }
+  return best;
+}
+function tutFakeTile(){
+  const emptyOf=(R,C)=>{ let n=0; for(const [dr,dc] of [[-1,0],[1,0],[0,-1],[0,1]]){ if(secKey(R+dr,C+dc)==="0,0"&&!board.has(kOf(R+dr,C+dc))) n++; } return n; };
+  const score=([R,C])=>{ const e=emptyOf(R,C), n=placedNb(R,C); return (e===1?100:0)+n*10-e; };
+  const cand=cellsOf("0,0").filter(([R,C])=>emptyOf(R,C)>=1&&placedNb(R,C)>=1).sort((p,q)=>score(q)-score(p));
+  for(const [R,C] of cand){
+    const sol=solEdges(R,C), e=[0,0,0,0]; let free=-1;
+    const nb=[[R-1,C,2],[R,C+1,3],[R+1,C,0],[R,C-1,1]];
+    for(let i=0;i<4;i++){
+      const [nr,nc,ns]=nb[i];
+      if(secKey(nr,nc)!=="0,0"){ e[i]=0; continue; }
+      const q=board.get(kOf(nr,nc));
+      if(q){ e[i]=edges(q)[ns]; } else { e[i]=sol[i]; if(free<0) free=i; }
+    }
+    if(free<0) continue;
+    e[free]=1+((sol[free])%NCOL);           // a different colour than the solution
+    if(e.join("")===sol.join("")) continue;
+    const t={e,rot:0,sec:"0,0",fake:1};
+    hand.unshift(t);
+    tutTrap={R,C,n:placedNb(R,C),m:emptyOf(R,C)};
+    return {hi:0,R,C};
   }
   return null;
 }
-function tutAim(st){
+function tutAim(st,pre){
   if(!st.target) return;
-  const tg=tutTarget(st.target==="rot")||tutTarget(false);
+  const tg = pre || (st.target==="fake" ? (tutFakeTile()||tutTarget("norot")||tutTarget("rot")) : (tutTarget(st.target)||tutTarget("norot")||tutTarget("rot")));
   if(!tg) return;
   selIdx=tg.hi; renderHand();
   const d=cellEl(tg.R,tg.C);
@@ -650,41 +764,62 @@ function tutAim(st){
 function tutShow(i){
   tutStep=i;
   const st=TSTEPS[i]; if(!st) return;
+  if(st.quest){ tutQuest=true; renderQuests(); }
   if(!tutBox){ tutBox=document.createElement("div"); tutBox.id="tutBox"; document.body.appendChild(tutBox); }
-  const stepTxt=(PL?"krok":"step")+" "+(i+1)+"/"+TSTEPS.length;
-  const txt=(PL?st.pl:st.en).split("{C}").join(CS()).split("{CN}").join(CN())
-    .split("{P}").join(PL?TH().cur.plantPL:TH().cur.plantEN);
+  const stepTxt="Step "+(i+1)+" of "+TSTEPS.length;
+  document.body.classList.toggle("tutfocus",!!st.focus);
+  let pre=null;
+  if(st.target==="fake"){ tutTrap=null; pre=tutFakeTile(); }
+  document.querySelectorAll(".tutbad,.tutopen").forEach(el=>el.classList.remove("tutbad","tutopen"));
+  const open=cellsOf("0,0").length;
+  const txt=st.en.split("{C}").join(CS()).split("{TILE}").join(ECON.tile).split("{P}").join(CUR.plantEN)
+    .split("{N}").join(tutTrap?tutTrap.n:2).split("{REST}").join(!tutTrap||tutTrap.m===1?"the other side is still empty":"the other "+tutTrap.m+" sides are still empty")
+    .split("{E}").join(open===1?"<b>1 space</b> is":"<b>"+open+" spaces</b> are");
   tutBox.innerHTML='<div style="color:var(--muted);font-size:.74rem;margin-bottom:4px">'+stepTxt+'</div>'
     +'<div>'+txt+'</div><div class="trow"></div>';
   const row=tutBox.querySelector(".trow");
-  const skip=document.createElement("button"); skip.textContent=PL?"Pomiń samouczek":"Skip tutorial";
+  const skip=document.createElement("button"); skip.textContent="Skip tutorial";
   skip.addEventListener("click",()=>tutEnd(true));
   row.appendChild(skip);
   if(!st.on||st.both){
-    const next=document.createElement("button"); next.className="primary"; next.textContent=PL?"Dalej":"Next";
+    const next=document.createElement("button"); next.className="primary"; next.textContent="Next";
     next.addEventListener("click",()=>{ sfx("uiclick",.5); tutShow(i+1); });
     row.appendChild(next);
   }
   tutHi(st.hi);
-  tutAim(st);
+  tutAim(st,pre);
+  if(st.showBad){
+    for(let r=0;r<S;r++)for(let c=0;c<S;c++){ const t=board.get(kOf(r,c)); if(t&&!t.pre&&!eq(edges(t),solEdges(r,c))){ const d=cellEl(r,c); if(d) d.classList.add("tutbad"); } }
+    for(const [R,C] of cellsOf("0,0")){ const d=cellEl(R,C); if(d) d.classList.add("tutopen"); }
+  }
 }
+let tutAdv=false;
 function tutEvt(e){
-  if(!TUT||tutStep<0) return;
+  if(!TUT||tutStep<0||tutAdv) return;
   const st=TSTEPS[tutStep];
-  if(st&&st.on===e) setTimeout(()=>tutShow(tutStep+1),450);
+  if(!st||st.on!==e) return;
+  tutAdv=true; const n=tutStep+1; setTimeout(()=>{ tutAdv=false; tutShow(n); },450);
 }
+// in the tutorial the attempt does not end by itself before the "empty hand" lesson is over
+const tutHoldsAttempt=()=> TUT && tutStep>=0 && tutStep<=9;
+function tutCheckEmpty(){ if(TUT&&TSTEPS[tutStep]&&TSTEPS[tutStep].on==="handempty"&&!hand.length) tutEvt("handempty"); }
+let tutFinished=false;
 function tutFinishDialog(){
-  tutHi(null); if(tutBox){ tutBox.remove(); tutBox=null; }
-  showCard(PL?"Samouczek ukończony! 🎉":"Tutorial complete! 🎉",
-    PL?`Za każdy ukończony sektor dostajesz ${CS()} i punkty — im trudniejszy sektor, tym więcej jednego i drugiego. Powodzenia!`
-      :`Every finished sector earns you ${CS()} and points — the harder the sector, the more of both. Good luck!`,
-    [[PL?"Zaczynamy!":"Let\u2019s play!","primary",()=>tutEnd(false)]]);
+  if(tutFinished) return; tutFinished=true;
+  tutHi(null); document.body.classList.remove("tutfocus"); if(tutBox){ tutBox.remove(); tutBox=null; }
+  renderQuests();
+  showCard("Ready to play!",
+    "Your first board is complete! Explore the endless map or choose a single board. You can find the rules again in <b>Help</b>.",
+    [["Let\u2019s play!","primary",()=>tutEnd(false)]]);
 }
 function tutEnd(skipped){
+  // The tutorial never saves: wallet, points and both mode saves stay exactly as they were.
   try{
+    const first=!localStorage.getItem("katalumo-tut");
     localStorage.setItem("katalumo-tut","1");
     const prev=localStorage.getItem(MODEKEY);
     localStorage.setItem(MODEKEY,(prev==="single"&&hasSave("single"))?"single":"inf");
+    if(first||(!hasSave("inf")&&!hasSave("single"))) localStorage.setItem("katalumo-choose","1");   // mode/difficulty screen after the tutorial
   }catch(e){}
   location.reload();
 }
@@ -698,7 +833,7 @@ function hash(a,b,c){
 }
 const mod=(a,n)=>((a%n)+n)%n;
 const colOf=(sr,sc)=> MODE==="single" ? singleCol : mod(sr+2*sc,4);
-const ATT_T={60:4,50:6,40:8,30:11,20:16,0:29};  // p75: ~75% sektorow konczy sie bez doplat
+const ATT_T=ECON.attempts;
 const ATTF=()=>Math.max(.5,Math.pow(S/10,1.5));  // podejscia: 8x8=0,72 12x12=1,31 20x20=2,83 30x30=5,2
 const WORKF=()=>Math.max(.5,S*S/100);            // praca (nagrody, punkty): powierzchnia planszy
 const SINGLE_SLACK=1.3;   // tryb pojedynczy nie ma darmowego ratunku przez okrazenie -> wiecej luzu
@@ -706,9 +841,10 @@ const PTS_T={60:10,50:16,40:27,30:49,20:88,0:256};  // proporcjonalne do zmierzo
 const PTSF=()=>Math.pow(S/10,3);                 // punkty wg wysilku: 8x8=0,51 12x12=1,73 20x20=8 30x30=27
 const ptsOfTier=t=> Math.max(1,Math.round(PTS_T[t]*PTSF()));
 const ptsForSector=s=> ptsOfTier(s.tier);
-const attForTier=t=> TUT ? 99 : Math.max(2,Math.round((ATT_T[t]!==undefined?ATT_T[t]:6)*ATTF()*(MODE==="single"?SINGLE_SLACK:1)));
-const rewForTier=t=> Math.max(1,Math.round((REW_T[t]!==undefined?REW_T[t]:2)*WORKF()));
-const solveCost=k=> Math.max(10,Math.round(cellsOf(k).length*SOLVE_RATE));
+const attForTier=t=> TUT ? 9 : Math.max(2,Math.round((ATT_T[t]!==undefined?ATT_T[t]:5)*ATTF()*(MODE==="single"?SINGLE_SLACK:1)));
+const rewForTier=t=> Math.max(1,Math.round((ECON.reward[t]!==undefined?ECON.reward[t]:8)*WORKF()));
+const attCostForTier=t=> Math.max(5,Math.round((ECON.attempt[t]!==undefined?ECON.attempt[t]:15)*WORKF()));
+const solveCost=k=> Math.max(ECON.solveMin,Math.round(cellsOf(k).length*ECON.solvePerCell));
 const TIER_W=[[50,28],[40,24],[30,20],[20,16],[0,12]];
 function tierOf(sr,sc){
   if(MODE==="single") return singleTier;
@@ -830,7 +966,7 @@ function frontierOf(k){
 }
 function fits(t){
   const s=sectors.get(t.sec);
-  if(!s||!s.opened||!s.inAtt) return false;
+  if(!s||!s.opened||!s.inAtt||s.state!=="open") return false;
   const save=t.rot, cells=frontierOf(t.sec);
   for(let rot=0;rot<4;rot++){t.rot=rot;
     for(const [R,C] of cells) if(canPlace(t,R,C)){t.rot=save;return true;}
@@ -841,7 +977,7 @@ function playingSectors(){return [...sectors.entries()].filter(([,s])=>s.opened&
 
 // --- strumień ---
 function sampleTile(){
-  const open=playingSectors().filter(([,s])=>s.deck.length);
+  const open=playingSectors().filter(([k,s])=>s.deck.length&&handEligible(k));
   if(!open.length) return null;
   const adj=new Set();
   if(activeK){
@@ -874,9 +1010,13 @@ function drawFill(){
   }
   if(selIdx>=hand.length) selIdx=Math.max(0,hand.length-1);
 }
+const handEligible=k=>{ const s=sectors.get(k); return !!(s&&s.opened&&s.inAtt&&s.state==="open"); };
 function pruneHand(){
-  for(let i=hand.length-1;i>=0;i--)
-    if(!fits(hand[i])){ toDeckBottom(hand.splice(i,1)[0]); }
+  for(let i=hand.length-1;i>=0;i--){
+    const t=hand[i];
+    if(!handEligible(t.sec)){ hand.splice(i,1); continue; }   // locked / finished / paused sector: tile goes back to its sector's deck on resume
+    if(!fits(t)){ toDeckBottom(hand.splice(i,1)[0]); }
+  }
   drawFill();
 }
 
@@ -896,13 +1036,14 @@ function maybeAttemptEnd(k){
     seen.add(sig);
     if(fits(t)) return;
   }
+  if(tutHoldsAttempt()){ tutCheckEmpty(); return; }
   endAttempt(k);
 }
 function endAttempt(k){
   const s=sectors.get(k);
   if(!s||!s.opened||!s.inAtt) return;
-  tutEvt("endatt");
   s.inAtt=false; s.att--; s.deck=[];
+  if(TUT&&s.att<1) s.att=9;
   hand=hand.filter(t=>t.sec!==k);
   let kept=0; const toFade=[];
   const [sr,sc]=k.split(",").map(Number);
@@ -926,7 +1067,10 @@ function endAttempt(k){
     buildSector(sr,sc);
     pruneHand(); renderHand();
   }, toFade.length?600:0);
-  if(s.att>0){
+  if(TUT){
+    setTimeout(()=>{ resumeSector(k); showToasts([{kind:"mission",html:"<b>End attempt</b> uses one attempt ⟲ — "+s.att+" left."}]); tutEvt("endatt"); },750);
+  }
+  else if(s.att>0){
     showCard(PL?"Podejście zakończone":"Attempt over",
       PL?`Nowych poprawnych: ${kept}. Łącznie poprawnie: ${finalFilled} z ${target} pól. Pozostałe podejścia: ${s.att}.`
         :`New correct tiles: ${kept}. Correct in total: ${finalFilled} of ${target} cells. Attempts left: ${s.att}.`,
@@ -940,8 +1084,8 @@ function endAttempt(k){
       (PL?`Ułożone poprawnie: ${finalFilled} z ${target} pól — te klocki zostają. `
          :`Correct so far: ${finalFilled} of ${target} cells — those tiles stay. `)+
       (MODE==="inf"
-        ? (PL?`Odblokuje go okrążenie ukończonymi sektorami (darmowo) albo ${CS()}. Reszta mapy jest dalej otwarta.`:`Unlock it by encircling it with finished sectors (free) or with ${CS()}. The rest of the map stays open.`)
-        : (PL?`Kolejne podejście za ${CS()} — odnawiają się 1 na 4 godziny.`:`Another attempt costs ${CS()} — they regrow 1 per 4 hours.`)),
+        ? (PL?`Odblokuje go otoczenie ukończonymi sektorami (za darmo) albo jedno podejście za ${attCostForTier(s.tier)} ${CS()}. Reszta mapy jest dalej otwarta.`:`Free it by surrounding it with finished sectors (free) or buy one more attempt for ${attCostForTier(s.tier)} ${CS()}. The rest of the map stays open.`)
+        : (PL?`Kolejne podejście: ${attCostForTier(s.tier)} ${CS()}.`:`One more attempt: ${attCostForTier(s.tier)} ${CS()}.`)),
       [["OK","primary",()=>hideCard()]]);
   }
   renderHand();
@@ -957,17 +1101,37 @@ function resumeSector(k){
   activeK=k;
   pruneHand(); renderHand();
 }
+const N8=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+const isLocked=s=> s&&s.opened&&s.state==="dorm"&&s.att<=0;
+// Cluster of locked sectors (8-connected) containing k.
+function lockedCluster(k){
+  const seen=new Set([k]), stack=[k];
+  while(stack.length){
+    const cur=stack.pop(); const [r,c]=cur.split(",").map(Number);
+    for(const [dr,dc] of N8){ const nk=kOf(r+dr,c+dc); if(seen.has(nk)) continue; if(isLocked(sectors.get(nk))){ seen.add(nk); stack.push(nk); } }
+  }
+  return [...seen];
+}
+// A locked sector is freed when its whole cluster is surrounded by finished sectors
+// (every neighbour of every member that is not itself in the cluster is done).
 function encircled(k){
-  const [xr,xc]=k.split(",").map(Number);
-  return [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].every(([er,ec])=>{
-    const q=sectors.get(kOf(xr+er,xc+ec)); return q&&q.state==="done";
-  });
+  if(!isLocked(sectors.get(k))) return false;
+  const cl=lockedCluster(k), inCl=new Set(cl);
+  for(const m of cl){
+    const [r,c]=m.split(",").map(Number);
+    for(const [dr,dc] of N8){ const nk=kOf(r+dr,c+dc); if(inCl.has(nk)) continue; const q=sectors.get(nk); if(!q||q.state!=="done") return false; }
+  }
+  return true;
+}
+function freeCluster(k){
+  const cl=lockedCluster(k);
+  for(const m of cl){ const s=sectors.get(m); s.att=attForTier(s.tier); }
+  return cl.length;
 }
 function offerAttempt(k){
   // darmowy ratunek: gotowy pierscien ukonczonych sasiadow dziala tez po ponownym zablokowaniu
   if(MODE==="inf"&&encircled(k)){
-    const s=sectors.get(k);
-    s.att=attForTier(s.tier);
+    freeCluster(k);
     sfx("unlock",.85);
     showCard(PL?"Sektor odblokowany!":"Sector unlocked!",
       PL?`Jest otoczony ukończonymi sektorami — wraca z pełnymi podejściami, za darmo.`
@@ -976,15 +1140,16 @@ function offerAttempt(k){
     return;
   }
   const who=MODE==="inf"?(PL?"Sektor zablokowany":"Sector locked"):(PL?"Plansza zablokowana":"Board locked");
-  const extra=MODE==="inf"?(PL?" Za darmo: okrąż go ukończonymi sektorami.":" For free: encircle it with finished sectors."):"";
-  if(coins>=COST){
+  const extra=MODE==="inf"?(PL?" Za darmo: otocz go (i sąsiednie zablokowane) ukończonymi sektorami.":" For free: surround it (together with any locked neighbours) with finished sectors."):"";
+  const ac=attCostForTier(sectors.get(k).tier);
+  if(coins>=ac){
     showCard(PL?"Dodatkowe podejście":"Extra attempt",
-      (PL?`${who}. Podejście teraz: 1 ${CS()} (masz ${coins}).`:`${who}. Attempt now: 1 ${CS()} (you have ${coins}).`)+extra,
-      [[PL?`Użyj 1 ${CS()}`:`Use 1 ${CS()}`,"primary",()=>{hideCard(); coins-=COST; sectors.get(k).att++; resumeSector(k);}],
+      (PL?`${who}. Jedno podejście: ${ac} ${CS()} (masz ${coins}).`:`${who}. One more attempt: ${ac} ${CS()} (you have ${coins}).`)+extra,
+      [[PL?`Użyj ${ac} ${CS()}`:`Use ${ac} ${CS()}`,"primary",()=>{hideCard(); coins-=ac; sectors.get(k).att++; sectors.get(k).help=1; resumeSector(k);}],
        [PL?"Nie teraz":"Not now","",()=>hideCard()]]);
   } else {
     showCard(PL?"Dodatkowe podejście":"Extra attempt",
-      (sfx("nocoins",.8), (PL?`${who}, a nie masz ${CS()}. Odnawiają się 1 na 4 godziny (do ${REGEN_CAP}).`:`${who}, and you have no ${CS()}. They regrow 1 per 4 hours (up to ${REGEN_CAP}).`)+extra),
+      (sfx("nocoins",.8), (PL?`${who}. Jedno podejście kosztuje ${ac} ${CS()}, masz ${coins}. Tokeny dostajesz za sektory, misje i postęp; kilka odnawia się samo (+${ECON.regenAmt} co 4 h).`:`${who}. One more attempt costs ${ac} ${CS()}, you have ${coins}. You earn Tokens for sectors, missions and map progress; a few regrow on their own (+${ECON.regenAmt} every 4 h).`)+extra),
       [["OK","primary",()=>hideCard()]]);
   }
 }
@@ -1014,12 +1179,12 @@ function checkAlbumRewards(msgs){
     for(let i=0;i<8;i++) if(!ownedCards.has(ci+"-"+i)){full=false;break;}
     if(full){
       colClaimed.add(ci); coins+=10; sfx("coll",.95);
-      msgs.push([`Kolekcja „${CARDCOLS[ci].name}” zebrana!`,"Komplet 8 kart. Nagroda: +10 🌱",""]);
+      msgs.push([`Kolekcja „${CARDCOLS[ci].name}” zebrana!`,"Komplet 8 kart. Nagroda: +10 Tokens",""]);
     }
   }
   if(!albumClaimed&&ownedCards.size===64){
     albumClaimed=true; coins+=30; sfx("albumfan",.95);
-    msgs.push(["Album ukończony!","Wszystkie 64 karty. Nagroda: +30 🌱",""]);
+    msgs.push(["Album ukończony!","Wszystkie 64 karty. Nagroda: +30 Tokens",""]);
   }
 }
 function showSeq(list,onEnd){
@@ -1042,7 +1207,7 @@ function ownShare(k){
 }
 function completeSector(k){
   const s=sectors.get(k);
-  s.state="done"; s.inAtt=false; s.deck=[];
+  s.state="done"; s.inAtt=false; s.deck=[]; s.doneT=Date.now();
   hand=hand.filter(t=>t.sec!==k);
   const rw=rewForTier(s.tier);
   coins+=rw;
@@ -1057,6 +1222,8 @@ function completeSector(k){
     msgs.push([PL?"Sektor ukończony!":"Sector complete!",
       PL?`+${rw} ${CS()} oraz +${pts} pkt${cut} (razem ★ ${score}).`
         :`+${rw} ${CS()} and +${pts} pts${cut} (total ★ ${score}).`,""]);
+    const toasts=questOnSectorDone(k,s);
+    if(toasts.length) setTimeout(()=>showToasts(toasts),1300);
   }
   if(s.el){ s.el.classList.add("done"); }
   markDirty(k);
@@ -1071,22 +1238,180 @@ function completeSector(k){
     return;
   }
   // okrążenie: zablokowana odblokowuje się, gdy wszystkie sąsiadki ukończone
-  for(const [dr,dc] of [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]]){
-    const nk=kOf(sr+dr,sc+dc), ns=sectors.get(nk);
-    if(!ns||!ns.opened||ns.state!=="dorm"||ns.att>0) continue;
-    const [xr,xc]=nk.split(",").map(Number);
-    const encircled=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].every(([er,ec])=>{
-      const q=sectors.get(kOf(xr+er,xc+ec)); return q&&q.state==="done";
-    });
-    if(encircled){
-      ns.att=attForTier(ns.tier);
-      msgs.push([PL?"Sektor odblokowany!":"Sector unlocked!",
-        PL?"Zablokowany sektor otoczony ukończonymi — wraca z pełnymi podejściami. Stuknij w niego, by grać."
-          :"A locked sector is now encircled by finished ones — it returns with full attempts. Tap it to play.",""]);
+  const freed=new Set();
+  for(const [dr,dc] of N8){
+    const nk=kOf(sr+dr,sc+dc);
+    if(freed.has(nk)||!isLocked(sectors.get(nk))) continue;
+    if(encircled(nk)){
+      const cl=lockedCluster(nk); cl.forEach(m=>freed.add(m));
+      const n=freeCluster(nk);
+      msgs.push([n>1?(PL?"Sektory odblokowane!":"Sectors unlocked!"):(PL?"Sektor odblokowany!":"Sector unlocked!"),
+        n>1 ? (PL?`${n} zablokowane sektory są otoczone ukończonymi — wracają z pełnymi podejściami. Stuknij w któryś, by grać.`
+                 :`${n} locked sectors are now surrounded by finished ones — they return with full attempts. Tap one to play.`)
+            : (PL?"Zablokowany sektor otoczony ukończonymi — wraca z pełnymi podejściami. Stuknij w niego, by grać."
+                 :"A locked sector is now surrounded by finished ones — it returns with full attempts. Tap it to play."),""]);
     }
   }
   drawFill(); renderHand();
   if(msgs.length) setTimeout(()=>showSeq(msgs),1000);
+}
+
+
+// ====== Missions (endless map only): three endless ladders ======
+let Q=null;   // {i:{sectors,lines,squares}, hist:[...], v:2}
+const QCATS=["sectors","lines","squares"];
+const QNAME={sectors:"Sectors",lines:"Lines",squares:"Squares"};
+function ladder(base,every,i){ return i<base.length ? base[i] : base[base.length-1]+every*(i-base.length+1); }
+// mission number i of a category
+function qDef(cat,i){
+  const M=ECON.missions[cat];
+  if(cat==="sectors"){ const n=ladder(M.steps,M.every,i); return {cat,i,n,goal:n}; }
+  if(cat==="squares"){ const k=ladder(M.steps,M.every,i); return {cat,i,n:k,goal:k}; }
+  // lines: merge row and diagonal ladders by length (row first on ties)
+  const list=[]; let r=0,d=0;
+  while(list.length<=i){
+    const rl=ladder(M.row,M.rowEvery,r), dl=ladder(M.diag,M.diagEvery,d);
+    if(rl<=dl){ list.push({kind:"row",n:rl}); r++; } else { list.push({kind:"diag",n:dl}); d++; }
+  }
+  const x=list[i]; return {cat,i,kind:x.kind,n:x.n,goal:x.n};
+}
+function qReward(m){
+  const M=ECON.missions[m.cat];
+  return m.cat==="lines" ? M.reward(m.kind,m.n) : M.reward(m.n);
+}
+function qLabel(m){
+  if(m.cat==="sectors") return m.n===1?"Finish a sector":`Finish ${m.n} sectors`;
+  if(m.cat==="squares") return `Finish a ${m.n}×${m.n} square of sectors`;
+  return m.kind==="diag" ? `Finish ${m.n} sectors in a diagonal line` : `Finish ${m.n} sectors in a row or column`;
+}
+function qShort(m){
+  if(m.cat==="sectors") return m.n===1?"1 sector":`${m.n} sectors`;
+  if(m.cat==="squares") return `${m.n}×${m.n} square`;
+  return m.kind==="diag" ? `${m.n} in a diagonal` : `${m.n} in a row or column`;
+}
+function qDoneSet(){ const d=new Set(); for(const [k,x] of sectors) if(x.opened&&x.state==="done") d.add(k); return d; }
+function qDoneCount(){ return qDoneSet().size; }
+function qMaxRun(done,dr,dc){
+  let best=0;
+  for(const k of done){ const [r,c]=k.split(",").map(Number);
+    if(done.has(kOf(r-dr,c-dc))) continue;                // start of a run only
+    let n=1; while(done.has(kOf(r+dr*n,c+dc*n))) n++; if(n>best) best=n; }
+  return best;
+}
+function qMaxSquare(done){
+  if(!done.size) return 0;
+  const dp=new Map(); let best=0;
+  const keys=[...done].map(k=>k.split(",").map(Number)).sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
+  for(const [r,c] of keys){
+    const v=1+Math.min(dp.get(kOf(r-1,c))||0, dp.get(kOf(r,c-1))||0, dp.get(kOf(r-1,c-1))||0);
+    dp.set(kOf(r,c),v); if(v>best) best=v;
+  }
+  return best;
+}
+function qProgress(m,done){
+  if(m.cat==="sectors") return done.size;
+  if(m.cat==="squares") return qMaxSquare(done);
+  return m.kind==="diag" ? Math.max(qMaxRun(done,1,1),qMaxRun(done,1,-1)) : Math.max(qMaxRun(done,0,1),qMaxRun(done,1,0));
+}
+function qCurrent(){ return QCATS.map(c=>qDef(c,Q.i[c])); }
+// start of a map: skip steps that the map already satisfies (no reward for what existed before)
+function qInit(){
+  Q={v:3,i:{sectors:0,lines:0,squares:0},hist:[]};
+  const done=qDoneSet();
+  for(const c of QCATS){ while(qProgress(qDef(c,Q.i[c]),done)>=qDef(c,Q.i[c]).goal) Q.i[c]++; }
+}
+// called right after a sector is finished on the endless map
+function questOnSectorDone(k,sec){
+  if(MODE!=="inf") return [];
+  if(!Q||Q.v!==3) qInit();
+  const out=[], done=qDoneSet();
+  for(const c of QCATS){
+    let guard=50;
+    while(guard-->0){
+      const m=qDef(c,Q.i[c]);
+      if(qProgress(m,done)<m.goal) break;
+      const [tok,pts]=qReward(m);
+      coins+=tok; score+=pts; Q.i[c]++;
+      Q.hist.push({cat:c,label:qLabel(m),tok,pts});
+      out.push({kind:c==="sectors"?"milestone":"mission",html:`<b>Mission complete:</b> ${qLabel(m)}<br>+${tok} ${CS()} · +${pts} ★`});
+    }
+  }
+  renderQuests();
+  return out;
+}
+function showToasts(list){
+  const box=document.getElementById("toasts"); if(!box) return;
+  list.forEach((t,i)=>setTimeout(()=>{
+    const el=document.createElement("div"); el.className="toast"; el.innerHTML=t.html; box.appendChild(el);
+    sfx(t.kind==="milestone"?"coll":"seedget",.85);
+    setTimeout(()=>{ el.classList.add("out"); setTimeout(()=>el.remove(),450); },3600);
+  },i*700));
+}
+function renderQuests(){
+  const qe=document.getElementById("quests"); if(!qe) return;
+  if(TUT){
+    qe.hidden=!tutQuest; if(!tutQuest) return;
+    qe.classList.remove("closed");
+    const d=sectors.get("0,0"), doneB=d&&d.state==="done";
+    document.getElementById("qList").innerHTML=`<div class="qi${doneB?" done":""}"><span class="qt">Finish this board</span><span class="qp">${doneB?1:0}/1</span><span class="qr">+10 ${CS()} +20 ★</span></div>`;
+    return;
+  }
+  if(MODE!=="inf"||!Q){ qe.hidden=true; return; }
+  qe.hidden=false; qe.classList.remove("closed");
+  if(!qe.dataset.click){ qe.dataset.click=1; qe.style.cursor="pointer"; qe.title="All missions"; qe.addEventListener("click",()=>{ if(!TUT&&MODE==="inf"&&Q){ sfx("uiclick",.45); showMissions(); } }); }
+  const done=qDoneSet();
+  const cur=qCurrent().map(m=>Object.assign(m,{prog:Math.min(m.goal,qProgress(m,done))}))
+    .sort((a,b)=>(b.prog/b.goal)-(a.prog/a.goal)||a.goal-b.goal).slice(0,2);
+  const L=document.getElementById("qList"); L.innerHTML="";
+  L.insertAdjacentHTML("beforeend",'<button class="qmenu" aria-label="All missions">Missions ☰</button><span class="qnext">Next:</span>');
+  for(const m of cur){
+    const [tok,pts]=qReward(m);
+    const pct=Math.round(100*m.prog/m.goal);
+    L.insertAdjacentHTML("beforeend",`<div class="qi"><span class="qt">${qLabel(m)}</span>`
+      +(m.goal>1?`<span class="qbar"><i style="width:${pct}%"></i></span><span class="qp">${m.prog}/${m.goal}</span>`:"")
+      +`<span class="qr">+${tok} ${CS()} +${pts} ★</span></div>`);
+  }
+}
+
+
+
+// ====== Help (English) ======
+function showHelp(){
+  const T=CS(), t10=v=>v;
+  const A=ECON.attempts, R=ECON.reward, C=ECON.attempt;
+  const html=`
+<div class="help">
+<h3>Tiles</h3>
+<p>Tap a tile in your hand to select it; press ⟳ (or tap the selected tile again) to rotate. Tap a cell to place it. A tile goes only where every coloured edge matches the tile it touches; edges on the sector border are blank, so tiles with a blank edge belong on the border. The first tile of a sector can go anywhere; later tiles must touch a placed tile.</p>
+<h3>Why a fitting tile can be wrong</h3>
+<p>Each sector has exactly one solution. A tile can match its neighbours in a cell and still belong elsewhere. Nothing is checked while you play — at the end of an attempt only tiles that sit in their true place stay; the others return to the deck.</p>
+<h3>The hand and the deck</h3>
+<p>Your hand holds up to 12 tiles drawn from the decks of all sectors you are playing right now, mostly from the sector you touched last and its neighbours. Only tiles that can be placed somewhere at this moment are dealt — so the hand can hold fewer tiles than the board has empty cells (five empty cells, two tiles available). When nothing fits any more, the attempt ends by itself. Tiles of locked, finished or paused sectors never appear in the hand; they come back when that sector resumes.</p>
+<p><b>Deck</b> in the top bar counts the tiles still to be placed in the current sector (deck plus hand). <b>♻ Hand</b> returns your whole hand to the bottom of the decks and deals again — it costs nothing and does not use an attempt.</p>
+<h3>Attempts and locking</h3>
+<p><b>End attempt</b> clears every misplaced tile; correctly placed tiles stay for good. It uses one attempt (⟲). Attempts per sector grow with difficulty and size: ${A[60]}/${A[50]}/${A[40]}/${A[30]}/${A[20]}/${A[0]} for 60/50/40/30/20/0% prefill on a 10×10 sector. When the last attempt ends, the sector <b>locks</b>; its correct tiles remain.</p>
+<p>Two ways to unlock: <b>buy one attempt</b> (${C[60]}–${C[0]} ${T} by difficulty, more for bigger sectors), or <b>for free</b>: surround the locked sector with finished sectors on all eight sides, corners included. Locked sectors that touch each other count as one group — the whole group has to be surrounded, and then every sector in it comes back with full attempts.</p>
+<h3>Points, 💎 and difficulty</h3>
+<p>★ points are awarded per finished sector by difficulty (shown on the map), scaled by sector size. A <b>💎</b> sector starts empty (0% prefill) and pays the most. Cells bought with Tokens do not score: you get the share of points matching what you placed yourself. Points from both modes add up to one total, which is what the leaderboard shows.</p>
+<h3>The map</h3>
+<p>In endless mode tap a fogged sector next to an opened one to open it; its symbols show difficulty. Drag to move the map, pinch or scroll to zoom, or use + − ⌖ (⌖ centres on your current sector).</p>
+<h3>Tokens ${T}</h3>
+<p><b>Earn:</b> finishing a sector (${R[60]}–${R[0]} ${T} by difficulty on 10×10, more for bigger sectors), missions. A few also regrow on their own: +${ECON.regenAmt} every 4 hours, up to ${ECON.regenCap}. Tokens are shared by both modes.</p>
+<p><b>Spend:</b> <b>Add a tile</b> — ${ECON.tile} ${T} for one correct tile in its place · <b>one extra attempt</b> on a locked sector or board · <b>Solve sector</b> — ${ECON.solvePerCell} ${T} per empty cell (bought cells do not score).</p>
+<h3>Missions</h3>
+<p>The endless map has three mission ladders that never end: <b>Sectors</b> (finish 1, 3, 5, 10, 25 sectors, then every 25 more), <b>Lines</b> (finished sectors in a row or column — 3, 5, 10, 15, 20, then every 10 — and on a diagonal from 5), and <b>Squares</b> (a 2×2 block of finished sectors, then 5×5, 10×10 and every 5 more). Each step pays Tokens and ★ once, the moment you reach it. The two missions closest to completion show under the map; ☰ → Missions shows the full table. Swapping the hand or ending an attempt never resets them; a new map starts its own ladders.</p>
+<h3>Saves and modes</h3>
+<p>Both modes save automatically, each in its own slot. <b>New game</b> replaces only the save of the mode you pick; <b>Continue</b> in the menu switches to the other mode’s save. The tutorial never touches your saves, Tokens or points.</p>
+</div>`;
+  document.getElementById("ovTitle").textContent="Help";
+  document.getElementById("ovText").textContent="";
+  document.getElementById("ovBody").innerHTML=html;
+  const btns=document.getElementById("ovBtns"); btns.innerHTML="";
+  const cl=document.createElement("button"); cl.className="primary"; cl.textContent="Close"; cl.addEventListener("click",()=>hideCard());
+  btns.appendChild(cl);
+  const oc=document.getElementById("ovClose"); oc.hidden=false; oc.onclick=hideCard;
+  document.querySelector("#overlay .card").style.maxWidth="520px";
+  ov.classList.add("on");
 }
 
 // --- render ---
@@ -1246,15 +1571,16 @@ function cornerSpace(i,ci){
 // Kazdy temat: 4 kolekcje (kolor sektora wyliczany jest modulo 4), 4 stemple, ramka klockow brzegowych.
 // owned: 0 oznacza temat do kupienia - przelacznik pokazuje go jako zablokowany.
 const THEMES=[
- {id:"garden", pl:"Ogród", en:"Garden", colls:GARDEN_COLLS, motifs:GARDEN_MOTIF, frame:frameBandGarden, corner:cornerGarden,
-  cur:{sym:"🌱", pl:"nasiona", en:"seeds", plantPL:"Dosadź klocek", plantEN:"Plant a tile"}, music:GARDEN_MUSIC, owned:1},
- {id:"space", pl:"Kosmos", en:"Space", colls:SPACE_COLLS, motifs:SPACE_MOTIF, frame:frameBandSpace, corner:cornerSpace,
-  cur:{sym:"⚡", pl:"energia", en:"energy", plantPL:"Dołóż klocek", plantEN:"Add a tile"}, music:SPACE_MUSIC, owned:1}
+ {id:"garden", pl:"Kwiaty", en:"Flowers", colls:GARDEN_COLLS, motifs:GARDEN_MOTIF, frame:frameBandGarden, corner:cornerGarden, music:GARDEN_MUSIC, owned:1},
+ {id:"space", pl:"Kosmos", en:"Space", colls:SPACE_COLLS, motifs:SPACE_MOTIF, frame:frameBandSpace, corner:cornerSpace, music:SPACE_MUSIC, owned:1}
 ];
 let THEME_I=0, THEMES_OWNED={garden:1};
 const TH=()=>THEMES[THEME_I]||THEMES[0];
-const CS=()=>TH().cur.sym;                       // symbol waluty biezacego tematu
-const CN=()=>PL?TH().cur.pl:TH().cur.en;         // nazwa waluty (tylko tam, gdzie naprawde potrzebna)
+// Currency is theme-independent: Tokens, drawn as a small tile.
+const TOK_SVG='<svg class="tok" viewBox="0 0 20 20" aria-label="Tokens"><path d="M2 2h16L10 10z" fill="#f0d27a"/><path d="M18 2v16L10 10z" fill="#c99a2e"/><path d="M18 18H2l8-8z" fill="#9e7420"/><path d="M2 18V2l8 8z" fill="#e2b64e"/><rect x="1.5" y="1.5" width="17" height="17" rx="2.5" fill="none" stroke="#5a4210" stroke-width="1.4"/></svg>';
+const CS=()=>TOK_SVG;                            // currency icon (inline SVG, use in innerHTML)
+const CN=()=>"Tokens";
+const CUR={plantPL:"Dołóż klocek", plantEN:"Add a tile"};
 function applyThemeData(){
   const t=TH();
   COLLS=t.colls; MOTIF=t.motifs; FRAME=t.frame; CORNER=t.corner||cornerGarden; MUSIC_DATA=t.music||GARDEN_MUSIC;
@@ -1285,11 +1611,10 @@ function setTheme(id){
   saveSeeds();
 }
 function applyCurrencyLabels(){
-  const c=TH().cur;
   const jb=document.getElementById("jokerBtn");
-  if(jb) jb.textContent=c.sym+" "+(PL?c.plantPL:c.plantEN);
-  const si=document.querySelector(".stack-info");
-  if(si){ const b=si.querySelector("#jokN"); if(b&&b.previousSibling) b.previousSibling.textContent=" · "+c.sym+" "; }
+  if(jb) jb.innerHTML=(PL?CUR.plantPL:CUR.plantEN)+' <span style="font-weight:500;opacity:.85">· '+ECON.tile+' '+CS()+'</span>';
+  const ti=document.getElementById("tokIco");
+  if(ti) ti.innerHTML=CS();
 }
 
 function tileSVGc(t,ci){
@@ -1850,7 +2175,7 @@ function invalidateSnaps(){
 function zoomToSec(k){
   sfx("zoom",.6);
   const [sr,sc]=k.split(",").map(Number);
-  z=1; centerOnSec(sr,sc); updateSnaps();
+  z=fitZoom(); centerOnSec(sr,sc); updateSnaps();
 }
 function sectorTap(k){
   const s=sectors.get(k); if(!s||!s.opened) return;
@@ -1861,13 +2186,8 @@ function sectorTap(k){
 
 // --- ręka / pasek ---
 function renderHand(){
-  const selT=hand[selIdx];
-  const rank=t=>{
-    const zc=t.e.filter(x=>x===0).length;
-    return (t.sec===activeK?0:10)+(zc===2?0:zc===1?1:2);
-  };
-  hand.sort((a,b)=>rank(a)-rank(b));
-  selIdx=Math.max(0,hand.indexOf(selT));
+  // tiles keep their positions; new tiles are appended at the end (drawFill)
+  if(selIdx>=hand.length) selIdx=Math.max(0,hand.length-1);
   handEl.innerHTML="";
   hand.forEach((t,i)=>{
     const sl=document.createElement("div");
@@ -1885,12 +2205,17 @@ function renderHand(){
   const s=activeK?sectors.get(activeK):null;
   if(s&&s.opened&&s.inAtt){
     deckNEl.textContent=sectorPool(activeK).length;
-    attNEl.textContent=TUT?"∞":s.att;
-  } else { deckNEl.textContent="–"; attNEl.textContent=TUT?"∞":(s&&s.opened&&s.state!=="done"?s.att:"–"); }
+    attNEl.textContent=s.att;
+  } else { deckNEl.textContent="–"; attNEl.textContent=(s&&s.opened&&s.state!=="done"?s.att:"–"); }
   if(!hand.length){
-    const msg = (s&&s.opened&&s.state!=="done"&&!s.inAtt)
+    const started=[...sectors.values()].filter(x=>x.opened&&x.state!=="done");
+    const allLocked=MODE==="inf"&&started.length>0&&started.every(x=>isLocked(x));
+    const msg = allLocked
+      ? (PL?"Wszystkie rozpoczęte sektory są zablokowane. Otwórz nowy sektor obok (stuknij zamglony), otocz zablokowane ukończonymi albo stuknij zablokowany, by kupić podejście za Tokeny."
+           :"All started sectors are locked. Open a new sector next to them (tap a fogged one), surround the locked ones with finished sectors, or tap a locked sector to buy an attempt with Tokens.")
+      : (s&&s.opened&&s.state!=="done"&&!s.inAtt)
       ? (s.att>0 ? (PL?"Stuknij sektor, aby zacząć kolejne podejście.":"Tap the sector to start the next attempt.")
-                 : (PL?"Sektor zablokowany — stuknij go, aby użyć 🌱.":"Sector locked — tap it to use 🌱."))
+                 : (PL?"Sektor zablokowany — stuknij go, aby użyć Tokenów.":"Sector locked — tap it to unlock it with Tokens."))
       : (MODE==="inf" ? (PL?"Stuknij zamglony sektor obok ukończonego, aby go otworzyć.":"Tap a fogged sector next to a finished one to open it.") : "");
     if(msg) handEl.innerHTML='<div style="grid-column:1/-1;color:var(--muted);font-size:.86rem;text-align:center;padding:14px 4px">'+msg+'</div>';
   }
@@ -1898,9 +2223,10 @@ function renderHand(){
   if(sb){
     const av = MODE==="inf"&&s&&s.opened&&s.inAtt&&s.att<attForTier(s.tier)&&cellsOf(activeK).length>0;
     sb.hidden=!av;
-    if(av) sb.textContent=(PL?"✨ Rozwiąż sektor: ":"✨ Solve sector: ")+solveCost(activeK)+" "+CS();
+    if(av) sb.innerHTML=(PL?"✨ Rozwiąż sektor: ":"✨ Solve sector: ")+solveCost(activeK)+" "+CS();
   }
   try{ updateFitHints(); }catch(e){}
+  try{ renderQuests(); }catch(e){}
   saveState();
 }
 
@@ -1936,10 +2262,11 @@ document.getElementById("swapBtn").addEventListener("click",()=>{
 document.getElementById("endBtn").addEventListener("click",()=>{
   const k=activeK, s=k?sectors.get(k):null;
   if(!s||!s.opened||!s.inAtt) return;
+  if(TUT){ endAttempt(k); return; }
   const left=sectorPool(k).length, last=(s.att<=1);
   const tail = last
-    ? (PL?` To Twoje ostatnie podejście — ${MODE==="inf"?"sektor":"plansza"} zostanie zablokowana (kolejne podejście za 1 🌱).`
-         :` This is your last attempt — the ${MODE==="inf"?"sector":"board"} will be locked (another attempt costs 1 🌱).`)
+    ? (PL?` To Twoje ostatnie podejście — ${MODE==="inf"?"sektor":"plansza"} zostanie zablokowana (kolejne podejście za ${attCostForTier(s.tier)} ${CS()}).`
+         :` This is your last attempt — the ${MODE==="inf"?"sector":"board"} will be locked (another attempt costs ${attCostForTier(s.tier)} ${CS()}).`)
     : (PL?` Z puli ubędzie jedno podejście (masz ${s.att}).`:` You use up one attempt (you have ${s.att}).`);
   showCard(last?(PL?"Ostatnie podejście":"Last attempt"):(PL?"Świeże rozdanie":"Fresh deal"),
     (left>0
@@ -1956,9 +2283,9 @@ document.getElementById("solveBtn").addEventListener("click",()=>{
   const cost=solveCost(k);
   if(coins<cost){
     sfx("nocoins",.8);
-    showCard(PL?"Za mało nasion":"Not enough seeds",
-      PL?`Rozwiązanie reszty tego sektora kosztuje ${cost} ${CS()}, masz ${coins}. ${CS()} dostajesz za ukończone sektory i co 4 godziny.`
-        :`Solving the rest of this sector costs ${cost} ${CS()}, you have ${coins}. You get ${CS()} for finished sectors and every 4 hours.`,
+    showCard(PL?"Za mało Tokenów":"Not enough Tokens",
+      PL?`Rozwiązanie reszty tego sektora kosztuje ${cost} ${CS()}, masz ${coins}. Tokeny dostajesz za ukończone sektory, misje i postęp na mapie.`
+        :`Solving the rest of this sector costs ${cost} ${CS()}, you have ${coins}. You earn Tokens for finished sectors, missions and map progress.`,
       [["OK","primary",()=>hideCard()]]);
     return;
   }
@@ -1967,7 +2294,7 @@ document.getElementById("solveBtn").addEventListener("click",()=>{
       :`Cost: ${cost} ${CS()} (you have ${coins}). Bought cells do not count toward points — you will get only the share of points matching what you placed yourself.`,
     [[PL?`Rozwiąż za ${cost} ${CS()}`:`Solve for ${cost} ${CS()}`,"primary",()=>{
         hideCard();
-        coins-=cost;
+        coins-=cost; s.help=1;
         const [sr,sc]=k.split(",").map(Number);
         for(const [R,C] of cellsOf(k)){
           board.set(kOf(R,C),{e:solEdges(R,C),rot:0,pre:1,sd:1});
@@ -1983,12 +2310,13 @@ document.getElementById("solveBtn").addEventListener("click",()=>{
 });
 document.getElementById("jokerBtn").addEventListener("click",()=>{
   const s=activeK?sectors.get(activeK):null;
-  if(!s||!s.opened||!s.inAtt){ showCard(PL?"Dosadzenie klocka":"Plant a tile",PL?"Połóż najpierw klocek w sektorze, aby wskazać, gdzie ma trafić poprawny klocek z rozwiązania.":"First place a tile in a sector to show where a correct tile from the solution should go.",[["OK","primary",()=>hideCard()]]); return; }
-  if(coins<COST){ noJokers(); return; }
+  if(!s||!s.opened||!s.inAtt){ showCard(PL?"Dołożenie klocka":"Add a tile",PL?"Najpierw zacznij podejście w sektorze — wtedy Tokeny mogą dołożyć poprawny klocek z rozwiązania.":"Start an attempt in a sector first — then Tokens can add a correct tile from the solution.",[["OK","primary",()=>hideCard()]]); return; }
+  const free=TUT&&TSTEPS[tutStep]&&TSTEPS[tutStep].on==="seed"&&!tutFreeUsed;
+  if(!free&&coins<COST){ noJokers(COST); return; }
   const cells=cellsOf(activeK);
   if(!cells.length) return;
-  coins-=COST;
-  const [R,C]=cells[rnd(cells.length)];
+  if(free) tutFreeUsed=true; else { coins-=COST; s.help=1; }
+  const [R,C]=(free&&tutBestAddCell())||cells[rnd(cells.length)];
   const key=kOf(R,C), rm=t=>t.cell===key;
   const di=s.deck.findIndex(rm); if(di>=0) s.deck.splice(di,1);
   const hi=hand.findIndex(rm); if(hi>=0) hand.splice(hi,1);
@@ -2010,6 +2338,7 @@ function onCell(R,C,el){
     pruneHand();
     maybeAttemptEnd(sk);
     renderHand();
+    tutCheckEmpty();
   } else if(!board.has(k)&&!isCardCell(R,C)){
     el.classList.remove("reject"); void el.offsetWidth; el.classList.add("reject");
     const sl=handEl.children[selIdx];
@@ -2041,13 +2370,13 @@ const ov=document.getElementById("overlay");
 function showCard(title,text,btns,bodyHTML){
   document.getElementById("ovClose").hidden=true;
   document.getElementById("ovTitle").textContent=title;
-  document.getElementById("ovText").textContent=text;
+  document.getElementById("ovText").innerHTML=text;
   document.getElementById("ovBody").innerHTML=bodyHTML||"";
   const b=document.getElementById("ovBtns"); b.innerHTML="";
   for(const [label,cls,fn] of btns){
     const x=document.createElement("button");
     if(cls) x.className=cls;
-    x.textContent=label; x.addEventListener("click",()=>{ sfx("uiclick",.45); fn(); });
+    x.innerHTML=label; x.addEventListener("click",()=>{ sfx("uiclick",.45); fn(); });
     b.appendChild(x);
   }
   if(!ov.classList.contains("on")) sfx("dlgopen",.55);
@@ -2058,9 +2387,12 @@ function hideCard(){
   ov.classList.remove("on");
   document.querySelector("#overlay .card").style.maxWidth="";
 }
-function noJokers(){
+function noJokers(need){
   sfx("nocoins",.8);
-  showCard(PL?`Za mało ${CS()}`:`Not enough ${CS()}`,PL?`${CS()} odnawia się: 1 na 4 godziny (do ${REGEN_CAP}). Dostajesz też za każdy ukończony sektor — im trudniejszy, tym więcej.`:`${CS()} regrows on its own: 1 per 4 hours (up to ${REGEN_CAP}). You also get it for finished sectors — the harder, the more.`,
+  showCard(PL?"Za mało Tokenów":"Not enough Tokens",
+    (need?(PL?`Potrzeba ${need} ${CS()}, masz ${coins}. `:`You need ${need} ${CS()}, you have ${coins}. `):"")+
+    (PL?`Tokeny dostajesz za ukończone sektory (im trudniejszy, tym więcej), za misje i za postęp na mapie. Kilka odnawia się też samo: +${ECON.regenAmt} co 4 godziny, do ${ECON.regenCap}.`
+      :`You earn Tokens for finished sectors (the harder, the more), for missions and for map progress. A few also regrow on their own: +${ECON.regenAmt} every 4 hours, up to ${ECON.regenCap}.`),
     [["OK","primary",()=>hideCard()]]);
 }
 
@@ -2097,7 +2429,7 @@ function openAlbum(){
   CARDCOLS.forEach((cc,ci)=>{
     let n=0;
     for(let i=0;i<8;i++) if(ownedCards.has(ci+"-"+i)) n++;
-    h+=`<div class="albhead"><span class="dot" style="background:${cc.col}"></span><b>${cc.name}</b><small>${n}/8${colClaimed.has(ci)?" · ✓ +10 🌱":""}</small></div><div class="cardgrid">`;
+    h+=`<div class="albhead"><span class="dot" style="background:${cc.col}"></span><b>${cc.name}</b><small>${n}/8${colClaimed.has(ci)?" · ✓ +10 Tokens":""}</small></div><div class="cardgrid">`;
     for(let i=0;i<8;i++){
       const id=ci+"-"+i;
       h+= ownedCards.has(id)
@@ -2154,7 +2486,12 @@ function renderMenu(){
   if(mw){ mw.hidden = THEMES.length<2; mw.textContent = "🎨 "+(PL?"Temat: ":"Theme: ")+(PL?TH().pl:TH().en); }
   document.getElementById("msScores").textContent = PL?"🏆 Wyniki":"🏆 Leaderboard";
   document.getElementById("msNew").textContent = PL?"▦ Nowa gra":"▦ New game";
-  document.getElementById("msTut").textContent = PL?"🎓 Jak grać":"🎓 How to play";
+  document.getElementById("msTut").textContent = PL?"🎓 Samouczek":"🎓 Play the tutorial";
+  document.getElementById("msHelp").textContent = PL?"❔ Pomoc":"❔ Help";
+  document.getElementById("msMissions").textContent = PL?"🎯 Misje":"🎯 Missions";
+  const mc=document.getElementById("msCont");
+  if(mc){ const other=MODE==="inf"?"single":"inf"; mc.hidden=TUT||!hasSave(other);
+    mc.textContent = other==="inf" ? (PL?"▶ Wróć do gry nieskończonej":"▶ Continue the endless map") : (PL?"▶ Wróć do planszy pojedynczej":"▶ Continue the single board"); }
   document.getElementById("msContact").textContent = PL?"✉ Kontakt":"✉ Contact";
   document.getElementById("msLang").textContent = PL?"🌐 English":"🌐 Polski";
   const mf=document.getElementById("msFit");
@@ -2192,13 +2529,62 @@ function showThemePicker(){
     body.appendChild(btn);
   });
   showCard(PL?"Temat":"Theme",
-    PL?"Zmienia wygląd klocków i mapy. Postęp, nasiona i punkty zostają bez zmian."
-      :"Changes how tiles and the map look. Progress, seeds and points are untouched.",
+    PL?"Zmienia wygląd klocków i mapy. Postęp, Tokeny i punkty zostają bez zmian."
+      :"Changes how tiles and the map look. Progress, Tokens and points are untouched.",
     [[PL?"Zamknij":"Close","",()=>hideCard()]]);
   document.getElementById("ovBody").appendChild(body);
 }
-document.getElementById("msNew").addEventListener("click",()=>{ closeMenu(); showNewGarden(); });
-const VERSION="0.14.3";
+document.getElementById("msNew").addEventListener("click",()=>{ closeMenu(); showNewGarden(false); });
+document.getElementById("msCont").addEventListener("click",()=>{
+  closeMenu();
+  const other=MODE==="inf"?"single":"inf";
+  if(!hasSave(other)) return;
+  try{ localStorage.setItem(MODEKEY,other); }catch(e){}
+  location.reload();
+});
+document.getElementById("msHelp").addEventListener("click",()=>{ closeMenu(); showHelp(); });
+document.getElementById("msMissions").addEventListener("click",()=>{ closeMenu(); showMissions(); });
+function showMissions(){
+  const T=CS();
+  let h='<div class="help">', focus=[];
+  if(MODE!=="inf"||!Q){
+    h+='<p>Missions run on the endless map. Finished single boards still pay Tokens and ★.</p>';
+  } else {
+    const done=qDoneSet();
+    // the two missions shown under the map
+    focus=qCurrent().map(m=>Object.assign(m,{prog:Math.min(m.goal,qProgress(m,done))}))
+      .sort((a,b)=>(b.prog/b.goal)-(a.prog/a.goal)||a.goal-b.goal).slice(0,2).map(m=>m.cat+":"+m.i);
+    h+=`<p style="color:var(--muted);margin:0 0 6px">${done.size} sector${done.size===1?"":"s"} finished on this map · ${Q.hist.length} mission${Q.hist.length===1?"":"s"} completed</p>`;
+    h+='<div id="mtWrap"><table class="mt"><thead><tr><th>Mission</th><th>Progress</th><th>Reward</th></tr></thead><tbody>';
+    const BLOCKS=25;
+    for(let blk=0;blk<BLOCKS;blk++){
+      for(const c of QCATS){
+        for(let j=0;j<3;j++){
+          const i=blk*3+j, m=qDef(c,i), [tok,pts]=qReward(m);
+          const isDone=i<Q.i[c], isNow=i===Q.i[c], key=c+":"+i;
+          const p=Math.min(m.goal,qProgress(m,done));
+          const cls="c-"+c+(isDone?" mdone":isNow?" mnow":" mnext")+(focus.includes(key)?" mfocus":"")+(j===0?" mfirst":"");
+          h+=`<tr class="${cls}" data-k="${key}"><td>${isDone?"✓ ":""}${qLabel(m)}</td><td>${isDone?"done":isNow?p+"/"+m.goal:""}</td><td>+${tok} ${T} +${pts} ★</td></tr>`;
+        }
+      }
+    }
+    h+='</tbody></table></div><p style="color:var(--muted);font-size:.8rem;margin-top:6px">Missions can be done in any order — each pays once, the moment you reach it.</p>';
+  }
+  h+='</div>';
+  document.getElementById("ovTitle").textContent="Missions";
+  document.getElementById("ovText").textContent="";
+  document.getElementById("ovBody").innerHTML=h;
+  const btns=document.getElementById("ovBtns"); btns.innerHTML="";
+  const cl=document.createElement("button"); cl.className="primary"; cl.textContent="Close"; cl.addEventListener("click",()=>hideCard());
+  btns.appendChild(cl);
+  const oc=document.getElementById("ovClose"); oc.hidden=false; oc.onclick=hideCard;
+  document.querySelector("#overlay .card").style.maxWidth="560px";
+  ov.classList.add("on");
+  // open at the two nearest missions
+  requestAnimationFrame(()=>{ const w=document.getElementById("mtWrap"), r=w&&w.querySelector("tr.mfocus");
+    if(w&&r){ w.scrollTop=Math.max(0,r.offsetTop-w.clientHeight/3); } });
+}
+const VERSION="0.19.3";
 document.getElementById("msContact").addEventListener("click",()=>{
   closeMenu();
   showCard(PL?"Kontakt":"Contact",
@@ -2238,13 +2624,13 @@ document.addEventListener("pointerdown",e=>{
 // --- regeneracja ✦ ---
 function regenTick(){
   const now=Date.now();
-  if(coins>=REGEN_CAP){ lastRegen=now; return; }
-  const g=Math.floor((now-lastRegen)/REGEN_MS);
+  if(coins>=ECON.regenCap){ lastRegen=now; return; }
+  const g=Math.floor((now-lastRegen)/ECON.regenMs);
   if(g>0){
-    coins+=Math.min(g,REGEN_CAP-coins);
+    coins+=Math.min(g*ECON.regenAmt,ECON.regenCap-coins);
     sfx("seedget",.7);
-    lastRegen+=g*REGEN_MS;
-    if(coins>=REGEN_CAP) lastRegen=now;
+    lastRegen+=g*ECON.regenMs;
+    if(coins>=ECON.regenCap) lastRegen=now;
     renderHand();
   }
 }
@@ -2265,6 +2651,14 @@ function centerOnSec(sr,sc){
   py=worldEl.clientHeight/2 - z*(sr*STEP+SECW/2);
   applyPan();
 }
+// zoom at which one sector fills the view with a margin (start zoom and the ⌖ button)
+function fitZoom(){ const w=Math.min(worldEl.clientWidth,worldEl.clientHeight); if(w<80) return 1; return clampZ(Math.min(1.15,(w-28)/SECW)); }
+function fitActive(){ const [sr,sc]=(activeK||"0,0").split(",").map(Number); z=fitZoom(); centerOnSec(sr,sc); updateSnaps(); }
+function zoomStep(f){ const r=worldEl.getBoundingClientRect(); zoomAt(r.width/2,r.height/2,z*f); tutEvt("zoom"); }
+document.getElementById("zIn").addEventListener("click",()=>{ sfx("uiclick",.4); zoomStep(1.25); });
+document.getElementById("zOut").addEventListener("click",()=>{ sfx("uiclick",.4); zoomStep(1/1.25); });
+document.getElementById("zFit").addEventListener("click",()=>{ sfx("zoom",.5); fitActive(); tutEvt("zoom"); });
+for(const id of ["zIn","zOut","zFit"]) document.getElementById(id).addEventListener("pointerdown",e=>e.stopPropagation());
 worldEl.addEventListener("pointerdown",e=>{
   pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if(pointers.size===1){dragStart={x:e.clientX,y:e.clientY,px,py,id:e.pointerId}; wasDrag=false;}
@@ -2283,6 +2677,7 @@ worldEl.addEventListener("pointermove",e=>{
     const d=Math.hypot(a.x-b.x,a.y-b.y);
     const r=worldEl.getBoundingClientRect();
     zoomAt((a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top, pinch.z0*d/pinch.d0);
+    tutEvt("zoom");
     return;
   }
   if(!dragStart) return;
@@ -2305,17 +2700,19 @@ worldEl.addEventListener("wheel",e=>{
   e.preventDefault();
   const r=worldEl.getBoundingClientRect();
   zoomAt(e.clientX-r.left, e.clientY-r.top, z*Math.exp(-e.deltaY*0.0016));
+  tutEvt("zoom");
 },{passive:false});
 
 // --- zapis: osobne sloty dla trybu nieskończonego i pojedynczego ---
 const KEYS={inf:"mozaika-v11-inf", single:"mozaika-v11-single"};
 const SEEDKEY="katalumo-seeds";   // nasiona sa WSPOLNE dla obu trybow
-function saveSeeds(){ try{ localStorage.setItem(SEEDKEY,JSON.stringify({c:coins,t:lastRegen,s:score,th:TH().id,own:THEMES_OWNED})); }catch(e){} }
+function saveSeeds(){ try{ localStorage.setItem(SEEDKEY,JSON.stringify({c:coins,t:lastRegen,s:score,th:TH().id,own:THEMES_OWNED,tok:1})); }catch(e){} }
 function loadSeeds(){
   try{
     const r=localStorage.getItem(SEEDKEY); if(!r) return false;
     const d=JSON.parse(r); if(!d) return false;
     coins=d.c|0; lastRegen=d.t||Date.now();
+    if(!d.tok){ coins=Math.max(ECON.start,coins*5); }   // old seed wallet -> Tokens
     if(typeof d.s==="number") score=d.s;   // suma punktow ze wszystkich gier, obu trybow
     if(d.own&&typeof d.own==="object") THEMES_OWNED=Object.assign({garden:1},d.own);
     if(d.th){ const i=THEMES.findIndex(t=>t.id===d.th); if(i>=0&&(THEMES[i].owned||THEMES_OWNED[d.th])) THEME_I=i; }
@@ -2331,7 +2728,8 @@ function saveState(){
   try{
     localStorage.setItem(KEYS[MODE],JSON.stringify({
       v:9, mode:MODE, seed, coins, score, lastRegen, activeK, size:S, st:singleTier, scol:singleCol,
-      opened:[...sectors.entries()].filter(([,s])=>s.opened).map(([k,s])=>({k,state:s.state,att:s.att,inAtt:s.inAtt?1:0,w:s.won||0})),
+      q:MODE==="inf"?Q:null,
+      opened:[...sectors.entries()].filter(([,s])=>s.opened).map(([k,s])=>({k,state:s.state,att:s.att,inAtt:s.inAtt?1:0,w:s.won||0,h:s.help?1:0,dt:s.doneT||0})),
       board:[...board.entries()].map(([k,t])=>({k,e:t.e,rot:t.rot,p:t.pre?1:0,f:t.pf?1:0,d:t.sd?1:0}))
     }));
   }catch(e){}
@@ -2357,7 +2755,13 @@ function loadState(m){
       const [sr,sc]=o.k.split(",").map(Number);
       const s=getSector(sr,sc);
       s.opened=true; s.state=o.state||"open"; s.att=o.att|0; s.inAtt=!!o.inAtt;
-      s.won=Array.isArray(o.w)?o.w:null;
+      s.won=Array.isArray(o.w)?o.w:null; s.help=!!o.h; s.doneT=o.dt||0;
+    }
+    if(MODE==="inf"){
+      Q=(d.q&&(d.q.v===2||d.q.v===3))?d.q:null;
+      if(Q&&Q.v===2){ // squares ladder changed: restart it from the current map without paying again
+        Q.v=3; Q.i.squares=0; const dn=qDoneSet(); while(qProgress(qDef("squares",Q.i.squares),dn)>=qDef("squares",Q.i.squares).goal) Q.i.squares++; }
+      if(!Q) qInit();
     }
     for(const ck of board.keys()){
       const [R,C]=ck.split(",").map(Number);
@@ -2370,6 +2774,7 @@ function loadState(m){
       const [sr,sc]=k.split(",").map(Number);
       buildSector(sr,sc);
     }
+    hand=[]; selIdx=0; pruneHand();
     try{ localStorage.setItem(MODEKEY,MODE); }catch(e){}
     return true;
   }catch(e){return false;}
@@ -2377,25 +2782,17 @@ function loadState(m){
 function setSize(){ SECW=S*CELL+(S-1)*GAP; STEP=SECW+20; }
 
 // --- nowa gra ---
-function showNewGarden(){
+function showNewGarden(afterTut){
   let mMode=MODE, iSize=(MODE==="inf"&&[8,10,12].includes(S))?S:10,
       sSize=(MODE==="single"&&[8,10,12,16,20,24,30].includes(S))?S:16,
       sTier=(MODE==="single")?singleTier:50, sCol=-1;
-  document.getElementById("ovTitle").textContent=PL?"Nowa gra":"New game";
-  document.getElementById("ovText").textContent=PL?"Nowa gra zastąpi tylko zapis wybranego trybu — zapis drugiego trybu zostaje.":"A new game replaces only the save of the chosen mode — the other mode\u2019s save is kept.";
+  document.getElementById("ovClose").hidden=true;
+  document.getElementById("ovTitle").textContent=afterTut?(PL?"Wybierz grę":"Choose your game"):(PL?"Nowa gra":"New game");
+  document.getElementById("ovText").textContent=afterTut
+    ? (PL?"Tryb nieskończony to mapa bez końca; plansza pojedyncza to jedna plansza o wybranej trudności. Tryb zmienisz w każdej chwili w menu ☰.":"Endless mode is a map with no end; a single board is one board of the difficulty you choose. You can switch modes any time from the ☰ menu.")
+    : (PL?"Nowa gra zastąpi tylko zapis wybranego trybu — zapis drugiego trybu zostaje. Żeby wrócić do zapisu, użyj „Kontynuuj” w menu.":"A new game replaces only the save of the chosen mode — the other mode\u2019s save is kept. To return to a save, use \u201cContinue\u201d in the menu.");
   const body=document.getElementById("ovBody");
-  const other=MODE==="inf"?"single":"inf";
   let contBtn=null;
-  if(hasSave(other)){
-    contBtn=document.createElement("button");
-    contBtn.className="primary";
-    contBtn.style.cssText="width:100%;margin:0 0 12px";
-    contBtn.textContent = other==="inf" ? (PL?"▶ Wróć do gry nieskończonej":"▶ Back to endless mode") : (PL?"▶ Wróć do zapisanej planszy pojedynczej":"▶ Back to the saved single board");
-    contBtn.addEventListener("click",()=>{
-      try{ localStorage.setItem(MODEKEY,other); }catch(e){}
-      location.reload();
-    });
-  }
   const mk=(label,vals,cur,fmt,onpick)=>{
     const wrap=document.createElement("div");
     wrap.style.cssText="margin:6px 0 12px;text-align:left";
@@ -2443,7 +2840,7 @@ function showNewGarden(){
     setTimeout(()=>location.reload(),420);
   });
   const no=document.createElement("button"); no.textContent=PL?"Anuluj":"Cancel";
-  no.addEventListener("click",()=>hideCard());
+  no.addEventListener("click",()=>{ document.body.classList.remove("choosing"); hideCard(); requestAnimationFrame(fitActive); });
   btns.appendChild(go); btns.appendChild(no);
   ov.classList.add("on");
 }
@@ -2463,9 +2860,10 @@ try{
   else if(!localStorage.getItem("katalumo-tut") && !hasSave("inf") && !hasSave("single")) TUTSTART=true;
 }catch(e){}
 if(TUTSTART){
-  TUT=true; MODE="single"; S=5; singleTier=60; singleCol=rnd(4);
+  TUT=true; MODE="single"; S=5; singleTier=40; singleCol=rnd(4);
   setSize();
   openSector(0,0);
+  coins=ECON.start; score=0;   // display only — the tutorial never saves
 } else if(!loadState(bootMode) && !(!hasNewOrder() && (bootMode==="inf"?hasSave("single"):hasSave("inf")) && loadState(bootMode==="inf"?"single":"inf"))){
   let o=null;
   try{ o=JSON.parse(localStorage.getItem("mozaika-v8-new")); localStorage.removeItem("mozaika-v8-new"); }catch(e){}
@@ -2481,11 +2879,14 @@ if(TUTSTART){
   try{ localStorage.setItem(MODEKEY,MODE); }catch(e){}
   setSize();
   loadSeeds();
+  if(MODE==="inf") qInit();
   openSector(0,0);
 }
+renderQuests();
 regenTick();
 refreshFog();
 drawFill(); renderHand();
+try{ if(!TUT&&localStorage.getItem("katalumo-choose")){ localStorage.removeItem("katalumo-choose"); document.body.classList.add("choosing"); setTimeout(()=>showNewGarden(true),200); } }catch(e){}
 document.getElementById("deckLbl").textContent=PL?"talia":"deck";
 document.getElementById("swapBtn").textContent=PL?"♻ Ręka":"♻ Hand";
 applyCurrencyLabels();
@@ -2493,10 +2894,7 @@ document.getElementById("endBtn").textContent=PL?"Zakończ podejście":"End atte
 document.getElementById("world").setAttribute("aria-label",PL?"Mapa":"Map");
 document.getElementById("ovClose").setAttribute("aria-label",PL?"Zamknij":"Close");
 document.documentElement.lang=LANG;
-requestAnimationFrame(()=>{
-  const [sr,sc]=(activeK||"0,0").split(",").map(Number);
-  centerOnSec(sr,sc);
-});
+requestAnimationFrame(()=>{ fitActive(); });
 if(TUT) tutShow(0);
 </script>
 </body>

@@ -1,14 +1,14 @@
 {
   "name": "Katalumo",
   "short_name": "Katalumo",
-  "description": "A relaxing mosaic puzzle on an endless garden map.",
+  "description": "A relaxing edge-matching puzzle on an endless map.",
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f4efe6",
-  "theme_color": "#f4efe6",
+  "theme_color": "#3b4a8c",
   "icons": [
     {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
   ]
 }
