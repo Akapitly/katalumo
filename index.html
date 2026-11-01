@@ -194,6 +194,12 @@ h1 .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inse
 .slot.shake{animation:shk .3s}
 @keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 .tray-actions{display:flex; gap:6px; margin-top:8px; align-items:center; flex-wrap:wrap}
+.tray-actions button{white-space:nowrap}
+@media (max-width:520px){
+  .tray-actions{gap:5px; flex-wrap:nowrap}
+  .tray-actions button{padding:7px 8px; font-size:.84rem; flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis}
+  .tray-actions #rotBtn{flex:none; padding:7px 10px}
+}
 button{font:inherit; border:0; border-radius:9px; padding:7px 11px; cursor:pointer; background:var(--cell); color:var(--ink)}
 button:disabled{opacity:.35; cursor:default}
 button.primary{background:var(--ink); color:var(--bg)}
@@ -219,11 +225,13 @@ button:focus-visible{outline:2.5px solid var(--gold); outline-offset:2px}
 .wonrow svg{width:60px !important; height:auto; display:block}
 .wonbig{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:6px 0}
 .wonbig svg{width:104px; height:auto; display:block}
+/* the tutorial box sits just above the tray (placeTutBox), so the hand and the buttons stay free */
 #tutBox{position:fixed; left:50%; transform:translateX(-50%); bottom:calc(env(safe-area-inset-bottom,0px) + 160px);
- width:min(480px,92vw); background:var(--panel); border:2px solid var(--gold); border-radius:14px;
- box-shadow:var(--shadow); padding:12px 14px; z-index:35; font-size:.92rem; text-align:left}
-#tutBox .trow{display:flex; gap:8px; justify-content:flex-end; margin-top:9px}
-#tutBox button{font:inherit; border:0; border-radius:9px; padding:7px 13px; cursor:pointer; background:var(--cell); color:var(--ink)}
+ width:min(480px,94vw); background:var(--panel); border:2px solid var(--gold); border-radius:12px;
+ box-shadow:var(--shadow); padding:8px 11px; z-index:35; font-size:.86rem; line-height:1.35; text-align:left}
+#tutBox .trow{display:flex; gap:6px; align-items:center; justify-content:flex-end; margin-top:6px}
+#tutBox .tstep{margin-right:auto; color:var(--muted); font-size:.72rem}
+#tutBox button{font:inherit; font-size:.82rem; border:0; border-radius:8px; padding:5px 11px; cursor:pointer; background:var(--cell); color:var(--ink)}
 #tutBox button.primary{background:var(--gold); color:#fff; font-weight:600}
 body.choosing #world,body.choosing #tray,body.choosing #quests,body.choosing .stack-info{visibility:hidden}
 body.choosing #overlay{background:transparent}
@@ -674,8 +682,7 @@ function tutShow(i){
   const txt=st.en.split("{C}").join(CS()).split("{TILE}").join(ECON.tile).split("{P}").join(CUR.plantEN)
     .split("{N}").join(tutTrap?tutTrap.n:2).split("{REST}").join(!tutTrap||tutTrap.m===1?"the other side is still empty":"the other "+tutTrap.m+" sides are still empty")
     .split("{E}").join(open===1?"<b>1 space</b> is":"<b>"+open+" spaces</b> are");
-  tutBox.innerHTML='<div style="color:var(--muted);font-size:.74rem;margin-bottom:4px">'+stepTxt+'</div>'
-    +'<div>'+txt+'</div><div class="trow"></div>';
+  tutBox.innerHTML='<div>'+txt+'</div><div class="trow"><span class="tstep">'+stepTxt+'</span></div>';
   const row=tutBox.querySelector(".trow");
   const skip=document.createElement("button"); skip.textContent="Skip tutorial";
   skip.addEventListener("click",()=>tutEnd(true));
@@ -687,12 +694,20 @@ function tutShow(i){
   }
   tutHi(st.hi);
   tutAim(st,pre);
+  placeTutBox();
   if(st.on!=="zoom") requestAnimationFrame(fitActive);   // keep the board above the instruction box
   if(st.showBad){
     for(let r=0;r<S;r++)for(let c=0;c<S;c++){ const t=board.get(kOf(r,c)); if(t&&!t.pre&&!eq(edges(t),solEdges(r,c))){ const d=cellEl(r,c); if(d) d.classList.add("tutbad"); } }
     for(const [R,C] of cellsOf("0,0")){ const d=cellEl(R,C); if(d) d.classList.add("tutopen"); }
   }
 }
+// the box stands right above the tray, never over the hand or the buttons
+function placeTutBox(){
+  if(!tutBox) return;
+  const tr=document.getElementById("tray"); if(!tr) return;
+  tutBox.style.bottom=Math.max(8,window.innerHeight-tr.getBoundingClientRect().top+6)+"px";
+}
+window.addEventListener("resize",()=>{ if(TUT&&tutBox){ placeTutBox(); requestAnimationFrame(fitActive); } });
 let tutAdv=false;
 function tutEvt(e){
   if(!TUT||tutStep<0||tutAdv) return;
