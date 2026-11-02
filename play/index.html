@@ -197,9 +197,11 @@ h1 .sr{position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inse
 .tray-actions{display:flex; gap:6px; margin-top:8px; align-items:center; flex-wrap:wrap}
 .tray-actions button{white-space:nowrap}
 @media (max-width:520px){
-  .tray-actions{gap:5px; flex-wrap:nowrap}
-  .tray-actions button{padding:7px 8px; font-size:.84rem; flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis}
-  .tray-actions #rotBtn{flex:none; padding:7px 10px}
+  /* wąski ekran: mniejsza czcionka i przyciski, bez ucinania napisów; jeśli nie zmieszczą się w jednej linii — druga linia, wyśrodkowana */
+  .tray-actions{gap:4px; flex-wrap:wrap; justify-content:center}
+  .tray-actions button{padding:6px 7px; font-size:clamp(.68rem,3.1vw,.84rem); flex:none; letter-spacing:-.01em}
+  .tray-actions button .tok{width:.95em; height:.95em}
+  .tray-actions #rotBtn{padding:6px 9px}
 }
 button{font:inherit; border:0; border-radius:9px; padding:7px 11px; cursor:pointer; background:var(--cell); color:var(--ink)}
 button:disabled{opacity:.35; cursor:default}
@@ -2790,7 +2792,7 @@ function showMissions(){
   requestAnimationFrame(()=>{ const w=document.getElementById("mtWrap"), r=w&&w.querySelector("tr.mfocus");
     if(w&&r){ w.scrollTop=Math.max(0,r.offsetTop-w.clientHeight/3); } });
 }
-const VERSION="0.21.1";
+const VERSION="0.21.2";
 document.getElementById("msContact").addEventListener("click",()=>{
   closeMenu();
   showCard(PL?"Kontakt":"Contact",
