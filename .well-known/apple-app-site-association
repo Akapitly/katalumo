@@ -1,12 +1,1 @@
-{
-  "applinks": {
-    "details": [
-      {
-        "appIDs": ["ZCX86NJNQ7.com.katalumo.patterndiary"],
-        "components": [
-          { "/": "/pd/*", "comment": "Pattern Diary: https://katalumo.com/pd/<target> = patterndiary://<target>" }
-        ]
-      }
-    ]
-  }
-}
+{"applinks":{"details":[{"appIDs":["ZCX86NJNQ7.com.katalumo.game"],"components":[{"/":"/k","comment":"start"},{"/":"/k/*"}]},{"appIDs":["ZCX86NJNQ7.com.katalumo.twist"],"components":[{"/":"/tw","comment":"start"},{"/":"/tw/*"}]},{"appIDs":["ZCX86NJNQ7.com.katalumo.patterndiary"],"components":[{"/":"/pd","comment":"start"},{"/":"/pd/*"}]}]}}
