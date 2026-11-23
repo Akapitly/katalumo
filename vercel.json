@@ -1,9 +1,1 @@
-{
-  "rewrites": [
-    { "source": "/pd/:path*", "destination": "/pd/index.html" }
-  ],
-  "headers": [
-    { "source": "/.well-known/apple-app-site-association", "headers": [{ "key": "Content-Type", "value": "application/json" }] },
-    { "source": "/.well-known/assetlinks.json", "headers": [{ "key": "Content-Type", "value": "application/json" }] }
-  ]
-}
+{"headers":[{"source":"/.well-known/apple-app-site-association","headers":[{"key":"Content-Type","value":"application/json"},{"key":"Cache-Control","value":"public, max-age=3600"}]},{"source":"/.well-known/assetlinks.json","headers":[{"key":"Content-Type","value":"application/json"},{"key":"Cache-Control","value":"public, max-age=3600"}]}],"rewrites":[{"source":"/k/:path*","destination":"/k/index.html"},{"source":"/tw/:path*","destination":"/tw/index.html"},{"source":"/pd/:path*","destination":"/pd/index.html"}]}
