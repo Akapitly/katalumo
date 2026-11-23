@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Katalumo Pattern Diary</title><meta name="robots" content="noindex">
+<link rel="icon" href="/icon-192.png">
+<style>
+:root{color-scheme:light}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#fdeef3;background-image:linear-gradient(#f6d3df 1px,transparent 1px),linear-gradient(90deg,#f6d3df 1px,transparent 1px);background-size:24px 24px;font:17px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#1f2a5c}
+main{background:#fff;border:3px solid #1f2a5c;border-radius:22px;box-shadow:6px 6px 0 #1f2a5c;padding:28px 26px;max-width:340px;margin:24px;text-align:center}
+img{width:96px;height:96px;border-radius:22px;border:3px solid #1f2a5c}h1{font-size:1.45rem;margin:14px 0 4px}p{margin:0 0 20px}
+a{display:block;margin:10px 0 0;padding:13px 16px;border:3px solid #1f2a5c;border-radius:14px;color:#1f2a5c;text-decoration:none;font-weight:700;background:#ffc93c}
+a.alt{background:#8fe0d0}[hidden]{display:none!important}
+</style></head><body><main>
+<img src="/img/icon-pattern-diary.png" alt="">
+<h1>Katalumo Pattern Diary</h1>
+<p>Draw your own patterns, then color them in.</p>
+<a id="open" href="patterndiary://">Open in Pattern Diary</a>
+<a id="ios" class="alt" href="https://apps.apple.com/app/id6835496032">Get it on the App Store</a>
+<a id="play" class="alt" href="https://play.google.com/store/apps/details?id=com.katalumo.patterndiary">Get it on Google Play</a>
+</main>
+<script>
+/* https://katalumo.com/pd/<target> opens the game (Universal Links / App Links). This page shows only when it did not:
+   Android: try the game through an intent link, without the game Google Play; iPhone / iPad: a button for the game and the App Store. */
+(function(){
+  var t=location.pathname.replace(/^\/pd\/?/,"").replace(/[^a-z0-9\/_-]/gi,"").slice(0,80), ua=navigator.userAgent||"";
+  var android=/Android/i.test(ua), ios=/iPhone|iPad|iPod/i.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
+  document.getElementById("open").href="patterndiary://"+t;
+  if(android){ document.getElementById("ios").hidden=true;
+    var play="https://play.google.com/store/apps/details?id=com.katalumo.patterndiary";
+    var intent="intent://"+t+"#Intent;scheme=patterndiary;package=com.katalumo.patterndiary;S.browser_fallback_url="+encodeURIComponent(play)+";end";
+    document.getElementById("open").href=intent; location.replace(intent); }
+  else if(ios){ document.getElementById("play").hidden=true; }
+  else { document.getElementById("open").hidden=true; }
+})();
+</script>
+</body></html>
