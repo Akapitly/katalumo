@@ -1,0 +1,12 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["ZCX86NJNQ7.com.katalumo.patterndiary"],
+        "components": [
+          { "/": "/pd/*", "comment": "Pattern Diary: https://katalumo.com/pd/<target> = patterndiary://<target>" }
+        ]
+      }
+    ]
+  }
+}
