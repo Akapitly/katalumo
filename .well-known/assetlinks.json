@@ -1,0 +1,44 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.katalumo.game",
+      "sha256_cert_fingerprints": [
+        "4B:A8:32:B9:9D:74:1F:A3:46:B6:56:6C:B4:DA:DC:79:08:29:4C:E6:2D:CC:EA:08:D4:C8:2B:DC:52:84:03:4D",
+        "36:5A:87:49:A8:4D:10:11:F3:8C:49:6E:51:C4:B1:E8:28:26:46:53:14:E2:9D:C9:BC:EB:DB:FE:CC:D2:7B:1D",
+        "CC:75:54:09:C9:3B:09:B6:8A:14:DE:46:41:14:C5:DF:82:89:46:6A:E9:B7:76:C8:9F:63:57:1D:50:B9:E8:67"
+      ]
+    }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.katalumo.twist",
+      "sha256_cert_fingerprints": [
+        "FE:31:B2:70:CE:EC:C7:0C:05:F5:AB:DA:11:88:30:C8:7C:F4:AF:7B:32:20:42:42:DC:85:65:C4:E6:8B:87:A7",
+        "C0:67:D2:76:85:DF:F8:2C:21:FC:F1:F5:57:AD:24:12:37:00:4B:46:38:BD:6D:1D:3E:C9:92:36:73:B9:15:F9",
+        "95:CE:BA:D4:D4:40:73:46:68:33:30:2A:3E:CE:3D:1A:1B:A4:8A:FA:C8:52:7E:CF:C7:DA:88:B0:6A:7C:2F:AA"
+      ]
+    }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.katalumo.patterndiary",
+      "sha256_cert_fingerprints": [
+        "0A:B6:26:2D:D3:90:FD:98:9F:84:19:CB:0D:36:94:FA:5B:F1:16:78:3E:CB:DD:A8:EF:0C:6F:95:CB:29:69:FE",
+        "FC:E3:19:EF:98:C7:31:4C:95:7B:02:D5:51:29:35:45:0B:DA:E9:79:B4:80:53:C4:5C:05:C2:A6:7B:3F:DB:BD",
+        "CC:75:54:09:C9:3B:09:B6:8A:14:DE:46:41:14:C5:DF:82:89:46:6A:E9:B7:76:C8:9F:63:57:1D:50:B9:E8:67"
+      ]
+    }
+  }
+]
