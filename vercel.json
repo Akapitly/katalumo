@@ -1,1 +1,352 @@
-{"headers":[{"source":"/.well-known/apple-app-site-association","headers":[{"key":"Content-Type","value":"application/json"},{"key":"Cache-Control","value":"public, max-age=3600"}]},{"source":"/.well-known/assetlinks.json","headers":[{"key":"Content-Type","value":"application/json"},{"key":"Cache-Control","value":"public, max-age=3600"}]}],"rewrites":[{"source":"/k/:path*","destination":"/k/index.html"},{"source":"/tw/:path*","destination":"/tw/index.html"},{"source":"/pd/:path*","destination":"/pd/index.html"}]}
+{
+  "headers": [
+    {
+      "source": "/.well-known/apple-app-site-association",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/.well-known/assetlinks.json",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/help/katalumo",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "es"
+        }
+      ],
+      "destination": "/help/katalumo/es.html"
+    },
+    {
+      "source": "/help/katalumo/",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "es"
+        }
+      ],
+      "destination": "/help/katalumo/es.html"
+    },
+    {
+      "source": "/help/katalumo",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "fr"
+        }
+      ],
+      "destination": "/help/katalumo/fr.html"
+    },
+    {
+      "source": "/help/katalumo/",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "fr"
+        }
+      ],
+      "destination": "/help/katalumo/fr.html"
+    },
+    {
+      "source": "/help/katalumo",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "pt"
+        }
+      ],
+      "destination": "/help/katalumo/pt.html"
+    },
+    {
+      "source": "/help/katalumo/",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "pt"
+        }
+      ],
+      "destination": "/help/katalumo/pt.html"
+    },
+    {
+      "source": "/help/katalumo",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "de"
+        }
+      ],
+      "destination": "/help/katalumo/de.html"
+    },
+    {
+      "source": "/help/katalumo/",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "de"
+        }
+      ],
+      "destination": "/help/katalumo/de.html"
+    },
+    {
+      "source": "/help/katalumo",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "ja"
+        }
+      ],
+      "destination": "/help/katalumo/ja.html"
+    },
+    {
+      "source": "/help/katalumo/",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "ja"
+        }
+      ],
+      "destination": "/help/katalumo/ja.html"
+    },
+    {
+      "source": "/help/katalumo",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "ko"
+        }
+      ],
+      "destination": "/help/katalumo/ko.html"
+    },
+    {
+      "source": "/help/katalumo/",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "ko"
+        }
+      ],
+      "destination": "/help/katalumo/ko.html"
+    },
+    {
+      "source": "/help/katalumo",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "pl"
+        }
+      ],
+      "destination": "/help/katalumo/pl.html"
+    },
+    {
+      "source": "/help/katalumo/",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "pl"
+        }
+      ],
+      "destination": "/help/katalumo/pl.html"
+    },
+    {
+      "source": "/help/twist",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "es"
+        }
+      ],
+      "destination": "/help/twist/es.html"
+    },
+    {
+      "source": "/help/twist/",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "es"
+        }
+      ],
+      "destination": "/help/twist/es.html"
+    },
+    {
+      "source": "/help/twist",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "fr"
+        }
+      ],
+      "destination": "/help/twist/fr.html"
+    },
+    {
+      "source": "/help/twist/",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "fr"
+        }
+      ],
+      "destination": "/help/twist/fr.html"
+    },
+    {
+      "source": "/help/twist",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "pt"
+        }
+      ],
+      "destination": "/help/twist/pt.html"
+    },
+    {
+      "source": "/help/twist/",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "pt"
+        }
+      ],
+      "destination": "/help/twist/pt.html"
+    },
+    {
+      "source": "/help/twist",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "de"
+        }
+      ],
+      "destination": "/help/twist/de.html"
+    },
+    {
+      "source": "/help/twist/",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "de"
+        }
+      ],
+      "destination": "/help/twist/de.html"
+    },
+    {
+      "source": "/help/twist",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "ja"
+        }
+      ],
+      "destination": "/help/twist/ja.html"
+    },
+    {
+      "source": "/help/twist/",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "ja"
+        }
+      ],
+      "destination": "/help/twist/ja.html"
+    },
+    {
+      "source": "/help/twist",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "ko"
+        }
+      ],
+      "destination": "/help/twist/ko.html"
+    },
+    {
+      "source": "/help/twist/",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "ko"
+        }
+      ],
+      "destination": "/help/twist/ko.html"
+    },
+    {
+      "source": "/help/twist",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "pl"
+        }
+      ],
+      "destination": "/help/twist/pl.html"
+    },
+    {
+      "source": "/help/twist/",
+      "has": [
+        {
+          "type": "query",
+          "key": "lang",
+          "value": "pl"
+        }
+      ],
+      "destination": "/help/twist/pl.html"
+    },
+    {
+      "source": "/k/:path*",
+      "destination": "/k/index.html"
+    },
+    {
+      "source": "/tw/:path*",
+      "destination": "/tw/index.html"
+    },
+    {
+      "source": "/pd/:path*",
+      "destination": "/pd/index.html"
+    }
+  ]
+}
